@@ -33,33 +33,64 @@ const Star: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+// Hiệu ứng 4: Mưa hoa mai hoa đào rơi
 const FallingSparkles = () => {
-  const sparkles = Array.from({ length: 25 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    animationDuration: `${5 + Math.random() * 8}s`,
-    animationDelay: `${Math.random() * 5}s`,
-    type: Math.random() > 0.5 ? 'sparkle' : 'star',
-    size: Math.random() * 15 + 10
-  }));
+  const flowers = Array.from({ length: 35 }).map((_, i) => {
+    const isMai = Math.random() > 0.5;
+    return {
+      id: i,
+      left: `${Math.random() * 100}%`,
+      animationDuration: `${8 + Math.random() * 10}s`,
+      animationDelay: `${Math.random() * 5}s`,
+      color: isMai ? '#FDE047' : '#FBCFE8',
+      centerColor: isMai ? '#EA580C' : '#BE185D',
+      size: Math.random() * 15 + 15
+    };
+  });
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {sparkles.map(p => (
+      {flowers.map(f => (
         <div 
-          key={p.id}
-          className="absolute -top-10 opacity-60 mix-blend-screen"
+          key={f.id}
+          className="absolute -top-10 opacity-80"
           style={{
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            animation: `fall ${p.animationDuration} linear infinite`,
-            animationDelay: p.animationDelay
+            left: f.left,
+            width: f.size,
+            height: f.size,
+            animation: `fall ${f.animationDuration} linear infinite`,
+            animationDelay: f.animationDelay
           }}
         >
-          {p.type === 'sparkle' ? <Sparkle className="w-full h-full animate-pulse" /> : <Star className="w-full h-full animate-spin-slow" />}
+          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' }}>
+            <path d="M50,15 C60,0 80,15 70,35 C85,25 100,45 80,60 C90,80 65,95 50,75 C35,95 10,80 20,60 C0,45 15,25 30,35 C20,15 40,0 50,15 Z" fill={f.color}/>
+            <circle cx="50" cy="48" r="12" fill={f.centerColor}/>
+          </svg>
         </div>
       ))}
+    </div>
+  );
+};
+
+// Hiệu ứng 5: Trùm cuối - Hào quang chuột
+const CursorGlow = () => {
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+
+  useEffect(() => {
+    const updatePosition = (e: MouseEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', updatePosition);
+    return () => window.removeEventListener('mousemove', updatePosition);
+  }, []);
+
+  return (
+    <div 
+      className="pointer-events-none fixed z-[9999] transition-all duration-100 ease-out mix-blend-screen hidden lg:block"
+      style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)' }}
+    >
+      <div className="w-4 h-4 bg-yellow-100 rounded-full blur-[2px] opacity-90 shadow-[0_0_10px_#fef08a]"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-r from-yellow-300 to-amber-500 rounded-full blur-2xl opacity-40 animate-pulse"></div>
     </div>
   );
 };
@@ -174,6 +205,7 @@ const App: React.FC = () => {
 
   return (
     <Layout>
+      <CursorGlow />
       <FallingSparkles />
       <Couplet text="Đơn thưa, lòng không nản" position="left" />
       <Couplet text="Chí vững, lộc ắt về" position="right" />
@@ -321,7 +353,6 @@ const App: React.FC = () => {
                   {state.status === 'idle' && files.length > 0 && (
                     <button 
                       onClick={(e) => {
-                        // 1. Kiểm tra an toàn: Nếu có kho pháo thì bắn
                         if (typeof (window as any).confetti === 'function') {
                           (window as any).confetti({
                             particleCount: 150,
@@ -330,7 +361,6 @@ const App: React.FC = () => {
                             colors: ['#FFD700', '#FF0000', '#00FF00']
                           });
                         }
-                        // 2. Chạy hàm xử lý file ngay lập tức
                         handleProcess();
                       }}
                       className={`btn-ripple w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${
@@ -343,7 +373,6 @@ const App: React.FC = () => {
                         <Sparkle className="w-6 h-6 animate-pulse" />
                         XỬ LÝ ĐƠN NGAY
                       </span>
-                      {/* Shine effect */}
                       <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
                     </button>
                   )}
