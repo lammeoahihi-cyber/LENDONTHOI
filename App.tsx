@@ -318,15 +318,19 @@ const App: React.FC = () => {
                 )}
 
                 <div className="flex flex-col gap-4">
-                 {state.status === 'idle' && files.length > 0 && (
+                  {state.status === 'idle' && files.length > 0 && (
                     <button 
                       onClick={(e) => {
-                        (window as any).confetti({
-                          particleCount: 150,
-                          spread: 80,
-                          origin: { y: 0.6 },
-                          colors: ['#FFD700', '#FF0000', '#00FF00']
-                        });
+                        // 1. Kiểm tra an toàn: Nếu có kho pháo thì bắn
+                        if (typeof (window as any).confetti === 'function') {
+                          (window as any).confetti({
+                            particleCount: 150,
+                            spread: 80,
+                            origin: { y: 0.6 },
+                            colors: ['#FFD700', '#FF0000', '#00FF00']
+                          });
+                        }
+                        // 2. Chạy hàm xử lý file ngay lập tức
                         handleProcess();
                       }}
                       className={`btn-ripple w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${
@@ -339,6 +343,7 @@ const App: React.FC = () => {
                         <Sparkle className="w-6 h-6 animate-pulse" />
                         XỬ LÝ ĐƠN NGAY
                       </span>
+                      {/* Shine effect */}
                       <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
                     </button>
                   )}
