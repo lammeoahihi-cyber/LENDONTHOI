@@ -69,8 +69,11 @@ const FallingSparkles = () => {
 const Couplet: React.FC<{ text: string, position: 'left' | 'right' }> = ({ text, position }) => {
   const words = text.split(' ');
   return (
-    <div className={`cau-doi-anim fixed top-20 ${position === 'left' ? 'left-10' : 'right-10'} hidden xl:flex flex-col items-center z-20`} style={{ animationDelay: position === 'left' ? '0s' : '0.5s' }}>>
-      <div className="bg-gradient-to-b from-red-700 via-red-600 to-red-800 text-yellow-300 py-10 px-4 rounded-[40px] border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] flex flex-col gap-5 items-center justify-center relative overflow-hidden">
+    <div 
+      className={`cau-doi-anim fixed top-20 ${position === 'left' ? 'left-10' : 'right-10'} hidden xl:flex flex-col items-center z-20`} 
+      style={{ animationDelay: position === 'left' ? '0s' : '0.5s' }}
+    >
+      <div className="bg-gradient-to-b from-red-700 via-red-600 to-red-800 text-yellow-300 py-10 px-4 rounded-[40px] border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] flex flex-col gap-5 items-center">
         <div className="absolute inset-2 border-2 border-dashed border-yellow-300/40 rounded-[32px] pointer-events-none"></div>
         {words.map((word, i) => (
           <span key={i} className="font-tet-title text-2xl lg:text-3xl font-black uppercase drop-shadow-lg relative z-10" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
