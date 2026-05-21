@@ -1,0 +1,432 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Layout } from './components/Layout';
+import { processExcelFiles } from './services/excelService';
+import { ProcessingState, HistoryItem, Platform } from './types';
+import { ACCEPTED_FILE_TYPES } from './constants';
+import {
+  Sparkle,
+  Star,
+  FallingSparkles,
+  BubbleSVG,
+  StarfishSVG,
+  JellyfishSVG,
+  RisingBubbles,
+  SwimmingFish,
+  Couplet
+} from './components/Decorations';
+
+const MAX_FILES = 5;
+const STORAGE_KEY = 'len_don_cung_lam_history_v2';
+
+const App: React.FC = () => {
+  const [theme, setTheme] = useState<'ocean' | 'tet'>(() => {
+    const saved = localStorage.getItem('theme_preference');
+    return (saved === 'tet' || saved === 'ocean') ? saved : 'ocean';
+  });
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'ocean' ? 'tet' : 'ocean');
+  };
+
+  useEffect(() => {
+    localStorage.setItem('theme_preference', theme);
+    document.body.className = `theme-${theme}`;
+  }, [theme]);
+
+  const [activePlatform, setActivePlatform] = useState<Platform>('shopee');
+  const [files, setFiles] = useState<File[]>([]);
+  const [state, setState] = useState<ProcessingState>({ status: 'idle', message: '' });
+  const [processedFileUrl, setProcessedFileUrl] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const savedHistory = localStorage.getItem(STORAGE_KEY);
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error('Failed to parse history', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }, [history]);
+
+  const addToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
+    const newItem: HistoryItem = {
+      ...item,
+      id: Math.random().toString(36).substr(2, 9),
+      timestamp: Date.now(),
+    };
+    setHistory(prev => [newItem, ...prev].slice(0, 50));
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles: File[] = Array.from(event.target.files || []);
+    if (files.length + selectedFiles.length > MAX_FILES) {
+      setState({ status: 'error', message: `Tối đa ${MAX_FILES} file mỗi lần.` });
+      return;
+    }
+    const validFiles = selectedFiles.filter(f => ACCEPTED_FILE_TYPES.includes(f.type));
+    if (validFiles.length !== selectedFiles.length) {
+      setState({ status: 'error', message: 'Chỉ chấp nhận file Excel (.xlsx, .xls).' });
+    } else {
+      setState({ status: 'idle', message: '' });
+      validFiles.forEach(f => {
+        addToHistory({ type: 'upload', filename: f.name, size: f.size, platform: activePlatform });
+      });
+    }
+    setFiles(prev => [...prev, ...validFiles]);
+    setProcessedFileUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+    if (files.length <= 1) {
+      setProcessedFileUrl(null);
+      setState({ status: 'idle', message: '' });
+    }
+  };
+
+  const handleProcess = async () => {
+    if (files.length === 0) return;
+    setState({ status: 'processing', message: `Đang xử lý đơn ${activePlatform.toUpperCase()}...` });
+    try {
+      const blob = await processExcelFiles(files, activePlatform);
+      const url = URL.createObjectURL(blob);
+      setProcessedFileUrl(url);
+      setState({ status: 'success', message: `Gộp đơn ${activePlatform.toUpperCase()} thành công!` });
+      addToHistory({ 
+        type: 'download', 
+        filename: `KET_QUA_${activePlatform.toUpperCase()}_${new Date().getTime()}.xlsx`, 
+        count: files.length,
+        platform: activePlatform
+      });
+    } catch (error: any) {
+      setState({ status: 'error', message: error.message || 'Lỗi xử lý file.' });
+    }
+  };
+
+  const reset = () => {
+    setFiles([]);
+    setState({ status: 'idle', message: '' });
+    setProcessedFileUrl(null);
+  };
+
+  const clearHistory = () => {
+    if (confirm('Xóa toàn bộ lịch sử?')) setHistory([]);
+  };
+
+  const isOcean = theme === 'ocean';
+
+  return (
+    <Layout theme={theme} toggleTheme={toggleTheme}>
+      {isOcean ? (
+        <>
+          <RisingBubbles />
+          <SwimmingFish />
+        </>
+      ) : (
+        <FallingSparkles />
+      )}
+      
+      <Couplet text="Đơn thưa, lòng không nản" position="left" theme={theme} />
+      <Couplet text="Chí vững, lộc ắt về" position="right" theme={theme} />
+      
+      {/* Absolute floating decorations */}
+      {isOcean ? (
+        <>
+          <div className="fixed top-24 left-10 w-24 h-28 opacity-45 pointer-events-none hidden lg:block animate-float z-0" style={{ animationDelay: '0.5s' }}>
+            <JellyfishSVG className="w-full h-full" />
+          </div>
+          <div className="fixed bottom-12 right-20 w-28 h-32 opacity-35 pointer-events-none hidden lg:block z-0 animate-float" style={{ animationDelay: '2.5s' }}>
+            <JellyfishSVG className="w-full h-full" />
+          </div>
+          <div className="fixed bottom-10 left-12 w-20 h-20 opacity-30 pointer-events-none hidden lg:block z-0 animate-sway">
+            <StarfishSVG className="w-full h-full" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="fixed top-20 left-4 w-32 h-32 opacity-40 pointer-events-none hidden lg:block animate-pulse mix-blend-screen">
+            <Sparkle className="w-full h-full drop-shadow-2xl text-yellow-300" />
+          </div>
+          <div className="fixed top-24 right-10 w-24 h-24 opacity-50 pointer-events-none hidden lg:block animate-pulse mix-blend-screen" style={{ animationDelay: '1s' }}>
+            <Star className="w-full h-full drop-shadow-2xl" />
+          </div>
+          <div className="fixed bottom-10 left-10 w-40 h-40 opacity-30 pointer-events-none z-0 animate-float mix-blend-screen">
+            <Sparkle className="w-full h-full" />
+          </div>
+          <div className="fixed bottom-20 right-5 w-28 h-28 opacity-40 pointer-events-none z-0 animate-float mix-blend-screen" style={{ animationDelay: '1.5s' }}>
+            <Star className="w-full h-full" />
+          </div>
+        </>
+      )}
+
+      <div className="flex flex-col gap-10 relative z-10">
+        <div className="text-center space-y-2">
+          <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-350 shadow-yellow-200/50'}`}>
+            {isOcean ? (
+              <>
+                <span className="text-cyan-400 animate-pulse">🫧</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">🫧</span>
+              </>
+            ) : (
+              <>
+                <span className="text-yellow-600 animate-pulse">✨</span> Phiên Bản CÓ ĐƠN <span className="text-yellow-600 animate-pulse">✨</span>
+              </>
+            )}
+          </div>
+          <h1 
+            className={`text-5xl md:text-7xl font-black tracking-tight leading-none font-tet-title mt-4 text-transparent bg-clip-text animate-shimmer drop-shadow-lg transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-300 via-sky-100 to-teal-400' : 'bg-gradient-to-br from-yellow-500 via-yellow-300 to-amber-600'}`} 
+            style={{textShadow: isOcean ? '0 4px 20px rgba(6, 182, 212, 0.4)' : '0 4px 20px rgba(251, 191, 36, 0.4)'}}
+          >
+            LÊN ĐƠN THÔI
+          </h1>
+        </div>
+
+        {/* Platform Tabs */}
+        <div className="flex justify-center">
+          <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 ${isOcean ? 'bg-slate-900/50 backdrop-blur-md border-cyan-500/30 shadow-[inset_0_2px_8px_rgba(6,182,212,0.1)]' : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'}`}>
+            <button 
+              onClick={() => { setActivePlatform('shopee'); reset(); }}
+              className={`px-8 py-3 rounded-xl font-bold text-lg transition-all border-2 duration-300 ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white border-orange-400 shadow-lg shadow-orange-500/35 scale-105' : (isOcean ? 'bg-slate-950/60 text-cyan-200 border-transparent hover:bg-slate-900 hover:border-cyan-500/30 hover:text-cyan-100' : 'bg-white text-orange-850 border-transparent hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600')}`}
+            >
+              SHOPEE
+            </button>
+            <button 
+              onClick={() => { setActivePlatform('tiktok'); reset(); }}
+              className={`px-8 py-3 rounded-xl font-bold text-lg transition-all border-2 duration-300 ${activePlatform === 'tiktok' ? (isOcean ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white border-cyan-455 shadow-lg shadow-cyan-500/35 scale-105' : 'bg-gradient-to-r from-slate-900 to-black text-white border-slate-700 shadow-lg shadow-slate-400/50 scale-105') : (isOcean ? 'bg-slate-950/60 text-cyan-200 border-transparent hover:bg-slate-900 hover:border-cyan-500/30 hover:text-cyan-100' : 'bg-white text-slate-800 border-transparent hover:bg-slate-50 hover:border-slate-200 hover:text-black')}`}
+            >
+              TIKTOK
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-4 space-y-6 order-2 lg:order-1 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            {/* History Card */}
+            <div className={`p-7 rounded-3xl border-2 transition-all duration-500 shadow-2xl hover:-translate-y-1 duration-300 space-y-4 ${isOcean ? 'bg-slate-950/50 border-cyan-500/20 shadow-cyan-950/40 text-cyan-100' : 'bg-white border-yellow-200 shadow-yellow-100/50 text-amber-900'}`}>
+              <div className={`flex items-center justify-between border-b pb-3 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
+                <h2 className={`text-lg font-bold font-tet-title ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>Nhật ký</h2>
+                {history.length > 0 && (
+                  <button onClick={clearHistory} className={`text-xs font-black uppercase tracking-wider ${isOcean ? 'text-cyan-400 hover:text-cyan-200' : 'text-yellow-600 hover:text-red-500'}`}>
+                    Xóa
+                  </button>
+                )}
+              </div>
+              <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                {history.length === 0 ? (
+                  <div className="text-center py-8">
+                    <span className="text-4xl opacity-30 animate-pulse">{isOcean ? '🫧' : '✨'}</span>
+                    <p className={`text-xs mt-2 font-medium ${isOcean ? 'text-cyan-404' : 'text-yellow-600'}`}>Chưa có lịch sử</p>
+                  </div>
+                ) : (
+                  history.map(item => (
+                    <div key={item.id} className={`flex items-start gap-3 p-3 rounded-xl border hover:border-cyan-400/6 Q shadow-md transition-all ${isOcean ? 'bg-gradient-to-r from-slate-900/50 to-slate-800/40 border-cyan-500/20 text-cyan-100' : 'bg-gradient-to-r from-yellow-50 to-white border-yellow-150 text-amber-900'}`}>
+                      <div className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border shadow-sm ${item.platform === 'shopee' ? 'bg-gradient-to-br from-orange-100 to-orange-250 text-orange-700 border-orange-300' : (isOcean ? 'bg-gradient-to-br from-cyan-900 to-cyan-750 text-white border-cyan-600' : 'bg-gradient-to-br from-slate-700 to-slate-900 text-white border-slate-600')}`}>
+                        {item.platform === 'shopee' ? 'S' : 'T'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-bold truncate text-sm ${isOcean ? 'text-cyan-200' : 'text-amber-950'}`}>{item.filename}</p>
+                        <div className={`flex justify-between items-center mt-1 text-xs font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-650'}`}>
+                          <span>{item.type === 'upload' ? 'Tải lên' : 'Kết quả'}</span>
+                          <span>{new Date(item.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-8 space-y-6 order-1 lg:order-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className={`p-2 rounded-[2.5rem] border-4 shadow-2xl overflow-hidden relative transition-all duration-500 ${isOcean ? 'bg-slate-950/50 border-cyan-500/30 shadow-cyan-950/30' : 'bg-white border-yellow-300 shadow-yellow-100/50'}`}>
+              {/* Corner Decorations */}
+              {isOcean ? (
+                <>
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-35 rounded-br-full mix-blend-multiply"></div>
+                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-teal-500/10 to-transparent opacity-35 rounded-tl-full mix-blend-multiply"></div>
+                </>
+              ) : (
+                <>
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-yellow-300/10 to-transparent opacity-35 rounded-br-full mix-blend-multiply animate-pulse"></div>
+                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-amber-300/10 to-transparent opacity-35 rounded-tl-full mix-blend-multiply animate-pulse"></div>
+                </>
+              )}
+
+              <div className="p-8 relative z-10">
+                {files.length < MAX_FILES && !processedFileUrl && (
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-3xl p-16 flex flex-col items-center justify-center cursor-pointer transition-all mb-8 group relative overflow-hidden ${activePlatform === 'shopee' ? 'border-orange-500/40 bg-orange-950/15 hover:bg-orange-950/25 hover:border-orange-400' : (isOcean ? 'border-cyan-500/40 bg-cyan-950/15 hover:bg-cyan-950/25 hover:border-cyan-400' : 'border-yellow-405 bg-yellow-50/30 hover:bg-yellow-50/60 hover:border-yellow-500')}`}
+                  >
+                    <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-5 transition-transform group-hover:scale-110 group-hover:rotate-12 duration-300 shadow-xl ${activePlatform === 'shopee' ? 'bg-gradient-to-br from-slate-900/80 to-orange-950/50 text-orange-400 shadow-orange-900/40' : (isOcean ? 'bg-gradient-to-br from-slate-900/80 to-cyan-950/50 text-cyan-400 shadow-cyan-900/40' : 'bg-gradient-to-br from-yellow-104 via-yellow-200 to-amber-305 text-yellow-600 shadow-yellow-200/40')}`}>
+                       {activePlatform === 'shopee' ? <BubbleSVG className="w-12 h-12" /> : <svg className="w-10 h-10 animate-bounce-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>}
+                    </div>
+                    <p className={`text-2xl font-black text-center font-tet-title group-hover:scale-105 transition-transform ${isOcean ? 'text-cyan-100' : 'text-amber-955'}`}>
+                      Thả file {activePlatform === 'shopee' ? 'Shopee' : 'Tiktok'} vào đây
+                    </p>
+                    <p className={`mt-2 font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-650'}`}>hoặc nhấn để chọn file</p>
+                    <input type="file" ref={fileInputRef} className="hidden" accept=".xlsx,.xls" multiple onChange={handleFileChange} />
+                  </div>
+                )}
+
+                {files.length > 0 && (
+                  <div className="space-y-4 mb-8">
+                    <div className={`flex items-center justify-between border-b pb-2 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-250'}`}>
+                      <h3 className={`text-xs font-black uppercase tracking-widest ${isOcean ? 'text-cyan-300' : 'text-yellow-600'}`}>Danh sách ({files.length})</h3>
+                      {!processedFileUrl && <button onClick={reset} className="text-xs text-rose-450 font-bold hover:bg-rose-950/30 px-3 py-1 rounded-full transition-colors">Hủy bỏ</button>}
+                    </div>
+                    {files.map((f, index) => (
+                      <div key={index} className={`flex items-center justify-between p-4 rounded-xl border group transition-colors animate-fade-in ${isOcean ? 'bg-cyan-950/40 border-cyan-500/20 hover:border-cyan-400' : 'bg-yellow-50/40 border-yellow-250 hover:border-amber-400'}`}>
+                        <div className="flex items-center gap-3">
+                           <div className={`p-2 rounded-lg shadow-sm border ${isOcean ? 'bg-slate-900 text-cyan-400 border-cyan-500/20' : 'bg-white text-yellow-655 border-yellow-250'}`}>
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                           </div>
+                           <span className={`text-sm font-bold truncate max-w-[200px] ${isOcean ? 'text-cyan-100' : 'text-amber-950'}`}>{f.name}</span>
+                        </div>
+                        {!processedFileUrl && <button onClick={() => removeFile(index)} className="text-rose-400 hover:text-rose-300 p-2"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-4">
+                  {state.status === 'idle' && files.length > 0 && (
+                    <button 
+                      onClick={handleProcess}
+                      className={`w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/30' : (isOcean ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/30' : 'bg-gradient-to-r from-yellow-500 via-amber-550 to-red-600 hover:from-yellow-450 hover:to-red-500 text-white shadow-yellow-250/50')}`}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        {isOcean ? <BubbleSVG className="w-6 h-6 animate-bounce" /> : <span className="animate-pulse">✨</span>}
+                        XỬ LÝ ĐƠN NGAY
+                      </span>
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
+                    </button>
+                  )}
+
+                  {state.status === 'processing' && (
+                    <div className={`flex flex-col items-center justify-center py-12 gap-5 rounded-3xl border-2 shadow-inner transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-950/60 to-blue-950/60 border-cyan-500/30' : 'bg-gradient-to-br from-yellow-50 to-amber-100/60 border-yellow-355'}`}>
+                      <div className="relative">
+                         <div className={`absolute inset-0 blur-2xl opacity-30 rounded-full animate-pulse ${isOcean ? 'bg-cyan-400' : 'bg-yellow-500'}`}></div>
+                         {isOcean ? (
+                           <BubbleSVG className="w-16 h-16 animate-bounce text-cyan-400 relative z-10" />
+                         ) : (
+                           <span className="text-5xl animate-bounce block relative z-10">⏳</span>
+                         )}
+                      </div>
+                      <p className={`font-bold uppercase tracking-widest text-sm animate-pulse ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>{state.message}</p>
+                    </div>
+                  )}
+
+                  {state.status === 'success' && processedFileUrl && (
+                    <div className="space-y-5 animate-slide-up">
+                      <div className={`border p-6 rounded-2xl flex items-center gap-5 relative overflow-hidden shadow-sm transition-all duration-500 ${isOcean ? 'bg-gradient-to-r from-emerald-950/60 to-teal-950/60 border-emerald-500/40' : 'bg-gradient-to-r from-emerald-50 to-teal-100/50 border-emerald-300'}`}>
+                        {isOcean && (
+                          <div className="absolute top-0 right-0 opacity-20 pointer-events-none mix-blend-multiply">
+                             <BubbleSVG className="w-32 h-32 translate-x-10 -translate-y-10 animate-pulse text-emerald-300" />
+                          </div>
+                        )}
+                        <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-3 rounded-full shadow-lg shadow-emerald-250 z-10 animate-bounce-slow"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div>
+                        <div className="z-10">
+                          <p className={`font-black text-lg ${isOcean ? 'text-emerald-300' : 'text-emerald-850'}`}>Hoàn tất xuất sắc!</p>
+                          <p className={`text-sm ${isOcean ? 'text-emerald-100' : 'text-emerald-705'}`}>{state.message}</p>
+                        </div>
+                      </div>
+                      <a href={processedFileUrl} download={`KET_QUA_${activePlatform.toUpperCase()}_${Date.now()}.xlsx`} className={`flex items-center justify-center gap-4 w-full py-6 rounded-2xl font-black text-xl shadow-xl transition-all border-2 ${isOcean ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-cyan-300/40 shadow-cyan-550/30' : 'bg-gradient-to-r from-yellow-500 via-amber-500 to-red-600 hover:from-yellow-450 hover:to-red-500 text-white border-yellow-300/40 shadow-yellow-250/30'}`}>
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        TẢI FILE KẾT QUẢ
+                      </a>
+                      <button onClick={reset} className={`w-full font-bold uppercase tracking-widest text-xs py-2 transition-colors ${isOcean ? 'text-cyan-400 hover:text-cyan-200' : 'text-yellow-650 hover:text-red-650'}`}>Làm lượt mới</button>
+                    </div>
+                  )}
+
+                  {state.status === 'error' && (
+                    <div className={`border p-6 rounded-2xl flex items-center gap-5 animate-shake shadow-sm animate-fade-in ${isOcean ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-rose-50 border-rose-300 text-rose-800'}`}>
+                      <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span className="font-bold">{state.message}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar{width:4px;}
+        .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
+        .custom-scrollbar::-webkit-scrollbar-thumb{background:#22d3ee;border-radius:10px;}
+        
+        /* Animations */
+        .animate-spin-slow { animation: spin 12s linear infinite; }
+        .animate-bounce-slow { animation: bounce 3s infinite; }
+        .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-slide-up { animation: slideUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        .animate-shimmer {
+           background-size: 200% auto;
+           animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 
+          0%, 100% { transform: translateY(-5%); } 
+          50% { transform: translateY(0); } 
+        }
+        @keyframes sway {
+          from { transform: rotate(-8deg); }
+          to { transform: rotate(8deg); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(2deg); }
+        }
+        @keyframes slideUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; } to { opacity: 1; }
+        }
+        @keyframes fishWiggle {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(5deg); }
+        }
+        @keyframes rise {
+          0% { transform: translateY(0) scale(0.7) translateX(0); opacity: 0; }
+          10% { opacity: 0.6; }
+          90% { opacity: 0.6; }
+          100% { transform: translateY(-115vh) scale(1.1) translateX(30px); opacity: 0; }
+        }
+        @keyframes swimLTR {
+          0% { left: -150px; }
+          100% { left: 100%; }
+        }
+        @keyframes swimRTL {
+          0% { right: -150px; }
+          100% { right: 100%; }
+        }
+        @keyframes shimmer {
+          to { background-position: 200% center; }
+        }
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+      `}</style>
+    </Layout>
+  );
+};
+
+export default App;
