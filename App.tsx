@@ -323,4 +323,122 @@ const App: React.FC = () => {
                       onClick={(e) => {
                         (window as any).confetti({
                           particleCount: 150,
-                          spread:
+                          spread: 80,
+                          origin: { y: 0.6 },
+                          colors: ['#FFD700', '#FF0000', '#00FF00']
+                        });
+                        handleProcess();
+                      }}
+                      className={`btn-ripple w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${
+                        activePlatform === 'shopee' 
+                          ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-400 hover:via-amber-400 hover:to-yellow-400 text-white shadow-yellow-300/50' 
+                          : 'bg-gradient-to-r from-slate-800 to-black text-white shadow-slate-400/50'
+                      }`}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        <Sparkle className="w-6 h-6 animate-pulse" />
+                        XỬ LÝ ĐƠN NGAY
+                      </span>
+                      <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
+                    </button>
+                  )}
+
+                  {state.status === 'processing' && (
+                    <div className="flex flex-col items-center justify-center py-12 gap-5 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-3xl border-2 border-yellow-200 shadow-inner">
+                      <div className="relative">
+                         <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-40 rounded-full animate-pulse"></div>
+                         <Star className="w-16 h-16 animate-spin-slow text-yellow-500 relative z-10" />
+                      </div>
+                      <p className="font-bold text-yellow-800 uppercase tracking-widest text-sm animate-pulse">{state.message}</p>
+                    </div>
+                  )}
+
+                  {state.status === 'success' && processedFileUrl && (
+                    <div className="space-y-5 animate-slide-up">
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-6 rounded-2xl flex items-center gap-5 relative overflow-hidden shadow-sm">
+                        <div className="absolute top-0 right-0 opacity-20 pointer-events-none mix-blend-multiply">
+                           <Sparkle className="w-32 h-32 translate-x-10 -translate-y-10 animate-pulse text-green-300" />
+                        </div>
+                        <div className="bg-gradient-to-br from-green-400 to-green-600 text-white p-3 rounded-full shadow-lg shadow-green-200 z-10 animate-bounce-slow"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div>
+                        <div className="z-10">
+                          <p className="font-black text-green-800 text-lg">Hoàn tất xuất sắc!</p>
+                          <p className="text-green-700 text-sm">{state.message}</p>
+                        </div>
+                      </div>
+                      <a href={processedFileUrl} download={`KET_QUA_${activePlatform.toUpperCase()}_${Date.now()}.xlsx`} className="flex items-center justify-center gap-4 w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-6 rounded-2xl font-black text-xl shadow-xl shadow-yellow-200/50 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] transition-all border-2 border-yellow-300/50">
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        TẢI FILE KẾT QUẢ
+                      </a>
+                      <button onClick={reset} className="w-full text-yellow-600 font-bold hover:text-yellow-800 uppercase tracking-widest text-xs py-2 transition-colors">Làm lượt mới</button>
+                    </div>
+                  )}
+
+                  {state.status === 'error' && (
+                    <div className="bg-red-50 border border-red-200 p-6 rounded-2xl flex items-center gap-5 text-red-800 animate-shake shadow-sm">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span className="font-bold">{state.message}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar{width:4px;}
+        .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
+        .custom-scrollbar::-webkit-scrollbar-thumb{background:#fca5a5;border-radius:10px;}
+        
+        /* Animations */
+        .animate-spin-slow { animation: spin 8s linear infinite; }
+        .animate-bounce-slow { animation: bounce 3s infinite; }
+        .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-slide-up { animation: slideUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        .animate-shimmer {
+           background-size: 200% auto;
+           animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 
+          0%, 100% { transform: translateY(-5%); } 
+          50% { transform: translateY(0); } 
+        }
+        @keyframes sway {
+          from { transform: rotate(-5deg); }
+          to { transform: rotate(5deg); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+        @keyframes slideUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; } to { opacity: 1; }
+        }
+        @keyframes fall {
+          0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0; }
+          10% { opacity: 0.8; }
+          100% { transform: translateY(110vh) rotate(360deg) translateX(20px); opacity: 0; }
+        }
+        @keyframes shimmer {
+          to { background-position: 200% center; }
+        }
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+      `}</style>
+    </Layout>
+  );
+};
+
+export default App;
