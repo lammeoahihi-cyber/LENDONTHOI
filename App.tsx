@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { processExcelFiles } from './services/excelService';
 import { ProcessingState, HistoryItem, Platform } from './types';
 import { ACCEPTED_FILE_TYPES } from './constants';
-
+import confetti from 'canvas-confetti';
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
@@ -300,10 +300,20 @@ const App: React.FC = () => {
                 )}
 
                 <div className="flex flex-col gap-4">
-                  {state.status === 'idle' && files.length > 0 && (
+                 {state.status === 'idle' && files.length > 0 && (
                     <button 
-                      onClick={handleProcess}
-                      className={`w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-400 hover:via-amber-400 hover:to-yellow-400 text-white shadow-yellow-300/50' : 'bg-gradient-to-r from-slate-800 to-black text-white shadow-slate-400/50'}`}
+                      onClick={(e) => {
+                        // 1. Hiệu ứng bắn pháo giấy
+                        confetti({
+                          particleCount: 150,
+                          spread: 80,
+                          origin: { y: 0.6 },
+                          colors: ['#FFD700', '#FF0000', '#00FF00']
+                        });
+                        // 2. Chạy hàm xử lý file gốc
+                        handleProcess(e);
+                      }}
+                      className={`btn-ripple w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-400 hover:via-amber-400 hover:to-yellow-400 text-white shadow-yellow-300/50' : 'bg-gradient-to-r from-slate-800 to-black text-white shadow-slate-400/50'}`}
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         <Sparkle className="w-6 h-6 animate-pulse" />
