@@ -11,14 +11,13 @@ import {
   StarfishSVG,
   JellyfishSVG,
   RisingBubbles,
-  SwimmingFish,
   Couplet
 } from './components/Decorations';
 
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
-// Hiệu ứng bổ sung 1: Bào tử phát quang sinh học (Bioluminescent Spores nhấp nháy nhịp thở)
+// 1. Hiệu ứng Bào tử phát quang sinh học
 const BioluminescenceSpores = () => {
   const spores = Array.from({ length: 30 }).map((_, i) => ({
     id: i,
@@ -27,7 +26,7 @@ const BioluminescenceSpores = () => {
     size: Math.random() * 5 + 3,
     duration: `${3 + Math.random() * 4}s`,
     delay: `${Math.random() * 3}s`,
-    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3', // Cyan hoặc Tím
+    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3',
   }));
 
   return (
@@ -35,13 +34,9 @@ const BioluminescenceSpores = () => {
       {spores.map(c => (
         <div
           key={c.id}
-          className="absolute rounded-full style-spore"
+          className="absolute rounded-full"
           style={{
-            left: c.left,
-            bottom: c.bottom,
-            width: c.size,
-            height: c.size,
-            backgroundColor: c.color,
+            left: c.left, bottom: c.bottom, width: c.size, height: c.size, backgroundColor: c.color,
             boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`,
             animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
             animationDelay: c.delay,
@@ -52,7 +47,7 @@ const BioluminescenceSpores = () => {
   );
 };
 
-// Hiệu ứng bổ sung 2: Nhòe biến dạng nước biển 3D (Water Distortion Overlay)
+// 2. Nhòe biến dạng nước biển 3D
 const WaterDistortionOverlay = () => (
   <div 
     className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" 
@@ -63,7 +58,73 @@ const WaterDistortionOverlay = () => (
   />
 );
 
-// Hiệu ứng bổ sung 3: Bọt khí phụt từ con trỏ chuột khi nhấp (Click Bubble Burst)
+// 3. Hiệu ứng Tương tác cá bơi: Cá to, Cá nhỏ & Click là phóng vút đi
+const InteractiveSwimmingFish = () => {
+  // Khởi tạo danh sách cá (Gồm cá to và cá nhỏ xen kẽ)
+  const [fishes, setFishes] = useState(() => 
+    Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      top: `${15 + Math.random() * 55}%`,
+      // Cá số chẵn là cá to khổng lồ (size 75px), cá lẻ là cá thường (30px)
+      size: i % 3 === 0 ? Math.random() * 25 + 65 : Math.random() * 15 + 25,
+      duration: `${14 + Math.random() * 10}s`,
+      delay: `${Math.random() * 5}s`,
+      direction: Math.random() > 0.5 ? 'swimLTR' : 'swimRTL',
+      isScared: false, // Trạng thái hoảng sợ khi bị click
+    }))
+  );
+
+  const handleFishClick = (id: number) => {
+    setFishes(prev => prev.map(f => {
+      if (f.id === id) {
+        return { ...f, isScared: true }; // Bật chế độ phóng nhanh
+      }
+      return f;
+    }));
+
+    // Sau 2 giây cá sẽ bình tĩnh lại và bơi chậm như cũ
+    setTimeout(() => {
+      setFishes(prev => prev.map(f => f.id === id ? { ...f, isScared: false } : f));
+    }, 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+      {fishes.map(f => (
+        <div
+          key={f.id}
+          onClick={() => handleFishClick(f.id)}
+          className={`absolute cursor-pointer pointer-events-auto select-none select-none transition-all duration-300 ${
+            f.isScared ? 'animate-[fishWiggle_0.1s_infinite]' : 'animate-[fishWiggle_0.6s_ease-in-out_infinite]'
+          }`}
+          style={{
+            top: f.top,
+            width: f.size,
+            height: f.size / 1.5,
+            animationName: f.direction,
+            // Nếu bị kích hoạt hoảng sợ (isScared), cá sẽ bơi nhanh gấp 4 lần (duration chia 4)
+            animationDuration: f.isScared ? `${parseFloat(f.duration) / 4}s` : f.duration,
+            animationDelay: f.isScared ? '0s' : f.delay,
+            animationTimingFunction: 'linear',
+            animationIterationCount: 'infinite'
+          }}
+        >
+          <svg viewBox="0 0 100 60" fill="none" style={{ transform: f.direction === 'swimRTL' ? 'scaleX(-1)' : 'none' }} className="w-full h-full drop-shadow-[0_4px_10px_rgba(6,182,212,0.3)]">
+            {/* Đuôi cá */}
+            <path d="M25,30 L5,8 L12,30 L5,52 Z" fill={f.size > 50 ? '#0284c7' : '#38bdf8'} />
+            {/* Thân cá */}
+            <path d="M15,30 C28,8 72,8 92,30 C72,52 28,52 15,30 Z" fill={f.size > 50 ? '#0ea5e9' : '#06b6d4'} />
+            {/* Mắt cá khổng lồ kiểu Peeper Subnautica */}
+            <circle cx="72" cy="30" r={f.size > 50 ? '14' : '10'} fill="#fde047" />
+            <circle cx="75" cy="30" r={f.size > 50 ? '8' : '5'} fill="#1e40af" />
+          </svg>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// 4. Bọt khí phụt nhẹ từ chuột khi nhấp vào màn hình
 const ClickBubbleBurst = () => {
   const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
   
@@ -88,14 +149,13 @@ const ClickBubbleBurst = () => {
             const angle = (i * 60 * Math.PI) / 180;
             const distance = Math.random() * 35 + 15;
             const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance - 40; // Đẩy bong bóng bay vút lên trên
+            const ty = Math.sin(angle) * distance - 40;
             return (
               <div
                 key={i}
-                className="absolute rounded-full bg-white/20 border border-white/60 backdrop-blur-[0.5px]"
+                className="absolute rounded-full bg-white/20 border border-white/60"
                 style={{
-                  width: size, height: size,
-                  transform: 'translate(-50%, -50%)',
+                  width: size, height: size, transform: 'translate(-50%, -50%)',
                   animation: 'bubble-burst-action 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
                   style: { '--tx': `${tx}px`, '--ty': `${ty}px` } as any
                 }}
@@ -103,6 +163,48 @@ const ClickBubbleBurst = () => {
             );
           })}
         </div>
+      ))}
+    </div>
+  );
+};
+
+// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong (Success Bubble Blast)
+const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
+  const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
+
+  useEffect(() => {
+    if (trigger) {
+      // Phụt liền lúc 70 bong bóng từ khắp đáy màn hình bay vọt lên ăn mừng
+      const newParticles = Array.from({ length: 70 }).map((_, i) => ({
+        id: Date.now() + i,
+        left: `${15 + Math.random() * 70}%`, // Tập trung nhiều ở giữa màn hình gần khu vực nút
+        size: Math.random() * 20 + 8,
+        delay: `${Math.random() * 0.8}s`,
+        duration: `${1.5 + Math.random() * 2}s`
+      }));
+      setParticles(newParticles);
+
+      // Dọn dẹp sau khi bọt khí bay hết màn hình
+      const timer = setTimeout(() => setParticles([]), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [trigger]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[999] overflow-hidden">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="absolute bottom-[-50px] rounded-full bg-cyan-200/20 border-2 border-white/60 backdrop-blur-[0.5px]"
+          style={{
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`,
+            animationDelay: p.delay,
+            boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)'
+          }}
+        />
       ))}
     </div>
   );
@@ -130,14 +232,13 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Biến kích hoạt bão bong bóng ăn mừng
+  const [showCelebrationBubbles, setShowCelebrationBubbles] = useState(false);
+
   useEffect(() => {
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) {
-      try {
-        setHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Failed to parse history', e);
-      }
+      try { setHistory(JSON.parse(savedHistory)); } catch (e) { console.error('Failed to parse history', e); }
     }
   }, []);
 
@@ -146,11 +247,7 @@ const App: React.FC = () => {
   }, [history]);
 
   const addToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
-    const newItem: HistoryItem = {
-      ...item,
-      id: Math.random().toString(36).substr(2, 9),
-      timestamp: Date.now(),
-    };
+    const newItem: HistoryItem = { ...item, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
     setHistory(prev => [newItem, ...prev].slice(0, 50));
   };
 
@@ -176,53 +273,50 @@ const App: React.FC = () => {
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
-    if (files.length <= 1) {
-      setProcessedFileUrl(null);
-      setState({ status: 'idle', message: '' });
-    }
+    if (files.length <= 1) { setProcessedFileUrl(null); setState({ status: 'idle', message: '' }); }
   };
 
   const handleProcess = async () => {
     if (files.length === 0) return;
     setState({ status: 'processing', message: `Đang xử lý đơn ${activePlatform.toUpperCase()}...` });
+    setShowCelebrationBubbles(false); // Reset kích hoạt cũ
     try {
       const blob = await processExcelFiles(files, activePlatform);
       const url = URL.createObjectURL(blob);
       setProcessedFileUrl(url);
       setState({ status: 'success', message: `Gộp đơn ${activePlatform.toUpperCase()} thành công!` });
+      
+      // KÍCH HOẠT BÃO BONG BÓNG NỔ ĂN MỪNG
+      setShowCelebrationBubbles(true);
+
       addToHistory({ 
         type: 'download', 
         filename: `KET_QUA_${activePlatform.toUpperCase()}_${new Date().getTime()}.xlsx`, 
-        count: files.length,
-        platform: activePlatform
+        count: files.length, platform: activePlatform
       });
     } catch (error: any) {
       setState({ status: 'error', message: error.message || 'Lỗi xử lý file.' });
     }
   };
 
-  const reset = () => {
-    setFiles([]);
-    setState({ status: 'idle', message: '' });
-    setProcessedFileUrl(null);
-  };
-
-  const clearHistory = () => {
-    if (confirm('Xóa toàn bộ lịch sử?')) setHistory([]);
-  };
+  const reset = () => { setFiles([]); setState({ status: 'idle', message: '' }); setProcessedFileUrl(null); setShowCelebrationBubbles(false); };
+  const clearHistory = () => { if (confirm('Xóa toàn bộ lịch sử?')) setHistory([]); };
 
   const isOcean = theme === 'ocean';
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
-      {/* Kích hoạt Click bọt khí chung */}
+      {/* Click bọt khí chung */}
       <ClickBubbleBurst />
+      
+      {/* Bão bong bóng chúc mừng khi trạng thái thành công */}
+      <SuccessBubbleBlast trigger={showCelebrationBubbles} />
 
       {isOcean ? (
         <>
           <RisingBubbles />
-          <SwimmingFish />
-          {/* Kích hoạt đốm sáng sinh học và màn biến dạng nước */}
+          {/* Gọi đàn cá tương tác 3D thay cho cá cũ tĩnh */}
+          <InteractiveSwimmingFish />
           <BioluminescenceSpores />
           <WaterDistortionOverlay />
         </>
@@ -284,14 +378,13 @@ const App: React.FC = () => {
           </h1>
         </div>
 
-        {/* Platform Tabs - Hiệu ứng 4: Thanh ngang viền LED Neon tự quét */}
+        {/* Platform Tabs */}
         <div className="flex justify-center">
           <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 relative overflow-hidden ${
             isOcean 
               ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.3)] shadow-[inset_0_2px_8px_rgba(6,182,212,0.1)]' 
               : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'
           }`}>
-            {/* Tia quét viền Neon phát sáng */}
             {isOcean && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" style={{ animation: 'scan-neon 3s linear infinite' }}></div>}
 
             <button 
@@ -334,7 +427,7 @@ const App: React.FC = () => {
                         {item.platform === 'shopee' ? 'S' : 'T'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-bold truncate text-sm ${isOcean ? 'text-cyan-200' : 'text-amber-950'}`}>{item.filename}</p>
+                        <p className={`font-bold truncate text-sm ${isOcean ? 'text-cyan-200' : 'text-amber-955'}`}>{item.filename}</p>
                         <div className={`flex justify-between items-center mt-1 text-xs font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-655'}`}>
                           <span>{item.type === 'upload' ? 'Tải lên' : 'Kết quả'}</span>
                           <span>{new Date(item.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
@@ -349,19 +442,6 @@ const App: React.FC = () => {
 
           <div className="lg:col-span-8 space-y-6 order-1 lg:order-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <div className={`p-2 rounded-[2.5rem] border-4 shadow-2xl overflow-hidden relative transition-all duration-500 ${isOcean ? 'bg-slate-950/50 border-cyan-500/30 shadow-cyan-950/30' : 'bg-white border-yellow-300 shadow-yellow-100/50'}`}>
-              {/* Corner Decorations */}
-              {isOcean ? (
-                <>
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-35 rounded-br-full mix-blend-multiply"></div>
-                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-teal-500/10 to-transparent opacity-35 rounded-tl-full mix-blend-multiply"></div>
-                </>
-              ) : (
-                <>
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-yellow-300/10 to-transparent opacity-35 rounded-br-full mix-blend-multiply animate-pulse"></div>
-                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-amber-300/10 to-transparent opacity-35 rounded-tl-full mix-blend-multiply animate-pulse"></div>
-                </>
-              )}
-
               <div className="p-8 relative z-10">
                 {files.length < MAX_FILES && !processedFileUrl && (
                   <div 
@@ -379,6 +459,7 @@ const App: React.FC = () => {
                   </div>
                 )}
 
+                {/* LIST FILE */}
                 {files.length > 0 && (
                   <div className="space-y-4 mb-8">
                     <div className={`flex items-center justify-between border-b pb-2 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-250'}`}>
@@ -405,9 +486,7 @@ const App: React.FC = () => {
                       onClick={(e) => {
                         if (typeof (window as any).confetti === 'function') {
                           (window as any).confetti({
-                            particleCount: 120,
-                            spread: 80,
-                            origin: { y: 0.6 },
+                            particleCount: 120, spread: 80, origin: { y: 0.6 },
                             colors: isOcean ? ['#22d3ee', '#38bdf8', '#a855f7'] : ['#FFD700', '#FF0000', '#00FF00']
                           });
                         }
@@ -419,7 +498,6 @@ const App: React.FC = () => {
                         {isOcean ? <BubbleSVG className="w-6 h-6 animate-bounce" /> : <span className="animate-pulse">✨</span>}
                         XỬ LÝ ĐƠN NGAY
                       </span>
-                      {/* Shine effect */}
                       <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
                     </button>
                   )}
@@ -473,13 +551,12 @@ const App: React.FC = () => {
         </div>
       </div>
       
-      {/* KHU VỰC ĐỊNH NGHĨA KEYFRAMES CSS TRỰC TIẾP CHO TRÌNH DUYỆT */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar{width:4px;}
         .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
         .custom-scrollbar::-webkit-scrollbar-thumb{background:#22d3ee;border-radius:10px;}
         
-        /* Animations gốc */
+        /* Animations */
         .animate-spin-slow { animation: spin 12s linear infinite; }
         .animate-bounce-slow { animation: bounce 3s infinite; }
         .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
@@ -497,31 +574,15 @@ const App: React.FC = () => {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes bounce { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
         @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(2deg); }
-        }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* Đuôi cá vẩy nhẹ */
         @keyframes fishWiggle {
           0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-8px) rotate(5deg); }
+          50% { transform: translateY(-3px) rotate(3deg); }
         }
-        @keyframes rise {
-          0% { transform: translateY(0) scale(0.7) translateX(0); opacity: 0; }
-          10% { opacity: 0.6; }
-          90% { opacity: 0.6; }
-          100% { transform: translateY(-115vh) scale(1.1) translateX(30px); opacity: 0; }
-        }
-        @keyframes swimLTR { 0% { left: -150px; } 100% { left: 100%; } }
-        @keyframes swimRTL { 0% { right: -150px; } 100% { right: 100%; } }
-        @keyframes shimmer { to { background-position: 200% center; } }
-
-        /* ======================================================== */
-        /* ĐỊNH NGHĨA KEYFRAMES MỚI CỦA 4 HIỆU ỨNG (FIX ẨN HIỆU ỨNG) */
-        /* ======================================================== */
 
         /* 1. Sóng nước nhòe màn hình */
         @keyframes water-wave {
@@ -541,7 +602,7 @@ const App: React.FC = () => {
           100% { transform: translateY(-50px) translateX(20px); }
         }
         
-        /* 3. Nhịp thở phát quang nhịp nhàng */
+        /* Nhịp thở phát quang nhịp nhàng */
         @keyframes pulseBreath {
           0% { opacity: 0.3; filter: brightness(0.8); }
           100% { opacity: 0.9; filter: brightness(1.3); }
@@ -551,6 +612,23 @@ const App: React.FC = () => {
         @keyframes scan-neon { 
           0% { transform: translateX(-100%); } 
           100% { transform: translateX(100%); } 
+        }
+
+        /* Trục bơi của cá (LTR và RTL) */
+        @keyframes swimLTR {
+          0% { left: -120px; }
+          100% { left: 100%; }
+        }
+        @keyframes swimRTL {
+          0% { right: -120px; }
+          100% { right: 100%; }
+        }
+
+        /* Bong bóng sủi đáy ăn mừng */
+        @keyframes rise {
+          0% { transform: translateY(0) scale(0.6) translateX(0); opacity: 0; }
+          15% { opacity: 0.9; }
+          100% { transform: translateY(-115vh) scale(1.3) translateX(40px); opacity: 0; }
         }
 
         @keyframes shake {
