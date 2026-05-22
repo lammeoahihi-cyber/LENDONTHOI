@@ -58,31 +58,23 @@ const WaterDistortionOverlay = () => (
   />
 );
 
-// 3. Hiệu ứng Tương tác cá bơi: Cá to, Cá nhỏ & Click là phóng vút đi
+// 3. ĐÀN CÁ CŨ NÂNG CẤP: Dáng mềm mại nguyên bản, Size To Hơn & Bị Click là phóng nhanh
 const InteractiveSwimmingFish = () => {
-  // Khởi tạo danh sách cá (Gồm cá to và cá nhỏ xen kẽ)
   const [fishes, setFishes] = useState(() => 
-    Array.from({ length: 8 }).map((_, i) => ({
+    Array.from({ length: 7 }).map((_, i) => ({
       id: i,
-      top: `${15 + Math.random() * 55}%`,
-      // Cá số chẵn là cá to khổng lồ (size 75px), cá lẻ là cá thường (30px)
-      size: i % 3 === 0 ? Math.random() * 25 + 65 : Math.random() * 15 + 25,
-      duration: `${14 + Math.random() * 10}s`,
-      delay: `${Math.random() * 5}s`,
+      top: `${20 + Math.random() * 55}%`,
+      // NÂNG SIZE TO HƠN: Xen kẽ cá đại ca khổng lồ (65px - 85px) và cá thường to (40px - 50px)
+      size: i % 3 === 0 ? Math.random() * 20 + 65 : Math.random() * 10 + 40,
+      duration: `${16 + Math.random() * 10}s`,
+      delay: `${Math.random() * 6}s`,
       direction: Math.random() > 0.5 ? 'swimLTR' : 'swimRTL',
-      isScared: false, // Trạng thái hoảng sợ khi bị click
+      isScared: false, 
     }))
   );
 
   const handleFishClick = (id: number) => {
-    setFishes(prev => prev.map(f => {
-      if (f.id === id) {
-        return { ...f, isScared: true }; // Bật chế độ phóng nhanh
-      }
-      return f;
-    }));
-
-    // Sau 2 giây cá sẽ bình tĩnh lại và bơi chậm như cũ
+    setFishes(prev => prev.map(f => f.id === id ? { ...f, isScared: true } : f));
     setTimeout(() => {
       setFishes(prev => prev.map(f => f.id === id ? { ...f, isScared: false } : f));
     }, 2000);
@@ -94,29 +86,24 @@ const InteractiveSwimmingFish = () => {
         <div
           key={f.id}
           onClick={() => handleFishClick(f.id)}
-          className={`absolute cursor-pointer pointer-events-auto select-none select-none transition-all duration-300 ${
+          className={`absolute cursor-pointer pointer-events-auto select-none transition-all duration-300 ${
             f.isScared ? 'animate-[fishWiggle_0.1s_infinite]' : 'animate-[fishWiggle_0.6s_ease-in-out_infinite]'
           }`}
           style={{
             top: f.top,
             width: f.size,
-            height: f.size / 1.5,
+            height: f.size / 2,
             animationName: f.direction,
-            // Nếu bị kích hoạt hoảng sợ (isScared), cá sẽ bơi nhanh gấp 4 lần (duration chia 4)
             animationDuration: f.isScared ? `${parseFloat(f.duration) / 4}s` : f.duration,
             animationDelay: f.isScared ? '0s' : f.delay,
             animationTimingFunction: 'linear',
             animationIterationCount: 'infinite'
           }}
         >
-          <svg viewBox="0 0 100 60" fill="none" style={{ transform: f.direction === 'swimRTL' ? 'scaleX(-1)' : 'none' }} className="w-full h-full drop-shadow-[0_4px_10px_rgba(6,182,212,0.3)]">
-            {/* Đuôi cá */}
-            <path d="M25,30 L5,8 L12,30 L5,52 Z" fill={f.size > 50 ? '#0284c7' : '#38bdf8'} />
-            {/* Thân cá */}
-            <path d="M15,30 C28,8 72,8 92,30 C72,52 28,52 15,30 Z" fill={f.size > 50 ? '#0ea5e9' : '#06b6d4'} />
-            {/* Mắt cá khổng lồ kiểu Peeper Subnautica */}
-            <circle cx="72" cy="30" r={f.size > 50 ? '14' : '10'} fill="#fde047" />
-            <circle cx="75" cy="30" r={f.size > 50 ? '8' : '5'} fill="#1e40af" />
+          {/* TRẢ LẠI CON CÁ CŨ ĐẸP ĐẼ CỦA BẠN */}
+          <svg viewBox="0 0 100 50" fill="currentColor" style={{ transform: f.direction === 'swimRTL' ? 'scaleX(-1)' : 'none' }} className="w-full h-full text-cyan-500 drop-shadow-[0_4px_12px_rgba(6,182,212,0.4)]">
+            <path d="M10,25 C30,10 70,10 90,25 C70,40 30,40 10,25 M90,25 L100,15 L95,25 L100,35 Z" />
+            <circle cx="30" cy="22" r="35" fill="rgba(0,0,0,0.5)" style={{ r: '3px' }} />
           </svg>
         </div>
       ))}
@@ -168,23 +155,20 @@ const ClickBubbleBurst = () => {
   );
 };
 
-// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong (Success Bubble Blast)
+// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong
 const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
   const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
 
   useEffect(() => {
     if (trigger) {
-      // Phụt liền lúc 70 bong bóng từ khắp đáy màn hình bay vọt lên ăn mừng
-      const newParticles = Array.from({ length: 70 }).map((_, i) => ({
+      const newParticles = Array.from({ length: 75 }).map((_, i) => ({
         id: Date.now() + i,
-        left: `${15 + Math.random() * 70}%`, // Tập trung nhiều ở giữa màn hình gần khu vực nút
-        size: Math.random() * 20 + 8,
+        left: `${15 + Math.random() * 70}%`, 
+        size: Math.random() * 22 + 8,
         delay: `${Math.random() * 0.8}s`,
         duration: `${1.5 + Math.random() * 2}s`
       }));
       setParticles(newParticles);
-
-      // Dọn dẹp sau khi bọt khí bay hết màn hình
       const timer = setTimeout(() => setParticles([]), 3500);
       return () => clearTimeout(timer);
     }
@@ -197,11 +181,8 @@ const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
           key={p.id}
           className="absolute bottom-[-50px] rounded-full bg-cyan-200/20 border-2 border-white/60 backdrop-blur-[0.5px]"
           style={{
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`,
-            animationDelay: p.delay,
+            left: p.left, width: p.size, height: p.size,
+            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards', animationDelay: p.delay`,
             boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)'
           }}
         />
@@ -232,7 +213,6 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Biến kích hoạt bão bong bóng ăn mừng
   const [showCelebrationBubbles, setShowCelebrationBubbles] = useState(false);
 
   useEffect(() => {
@@ -247,7 +227,7 @@ const App: React.FC = () => {
   }, [history]);
 
   const addToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
-    const newItem: HistoryItem = { ...item, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+    const newItem = { ...item, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
     setHistory(prev => [newItem, ...prev].slice(0, 50));
   };
 
@@ -279,19 +259,15 @@ const App: React.FC = () => {
   const handleProcess = async () => {
     if (files.length === 0) return;
     setState({ status: 'processing', message: `Đang xử lý đơn ${activePlatform.toUpperCase()}...` });
-    setShowCelebrationBubbles(false); // Reset kích hoạt cũ
+    setShowCelebrationBubbles(false);
     try {
       const blob = await processExcelFiles(files, activePlatform);
       const url = URL.createObjectURL(blob);
       setProcessedFileUrl(url);
       setState({ status: 'success', message: `Gộp đơn ${activePlatform.toUpperCase()} thành công!` });
-      
-      // KÍCH HOẠT BÃO BONG BÓNG NỔ ĂN MỪNG
       setShowCelebrationBubbles(true);
-
       addToHistory({ 
-        type: 'download', 
-        filename: `KET_QUA_${activePlatform.toUpperCase()}_${new Date().getTime()}.xlsx`, 
+        type: 'download', filename: `KET_QUA_${activePlatform.toUpperCase()}_${new Date().getTime()}.xlsx`, 
         count: files.length, platform: activePlatform
       });
     } catch (error: any) {
@@ -306,16 +282,13 @@ const App: React.FC = () => {
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
-      {/* Click bọt khí chung */}
       <ClickBubbleBurst />
-      
-      {/* Bão bong bóng chúc mừng khi trạng thái thành công */}
       <SuccessBubbleBlast trigger={showCelebrationBubbles} />
 
       {isOcean ? (
         <>
           <RisingBubbles />
-          {/* Gọi đàn cá tương tác 3D thay cho cá cũ tĩnh */}
+          {/* Chèn đàn cá cũ phiên bản tương tác khổng lồ */}
           <InteractiveSwimmingFish />
           <BioluminescenceSpores />
           <WaterDistortionOverlay />
@@ -503,7 +476,7 @@ const App: React.FC = () => {
                   )}
 
                   {state.status === 'processing' && (
-                    <div className={`flex flex-col items-center justify-center py-12 gap-5 rounded-3xl border-2 shadow-inner transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-950/60 to-blue-950/60 border-cyan-500/30' : 'bg-gradient-to-br from-yellow-50 to-amber-100/60 border-yellow-355'}`}>
+                    <div className={`flex flex-col items-center justify-center py-12 gap-5 rounded-3xl border-2 shadow-inner transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-950/60 to-blue-950/60 border-cyan-500/30' : 'bg-gradient-to-br from-yellow-50 to-amber-100/60 border-yellow-335'}`}>
                       <div className="relative">
                          <div className={`absolute inset-0 blur-2xl opacity-30 rounded-full animate-pulse ${isOcean ? 'bg-cyan-400' : 'bg-yellow-500'}`}></div>
                          {isOcean ? (
@@ -616,11 +589,11 @@ const App: React.FC = () => {
 
         /* Trục bơi của cá (LTR và RTL) */
         @keyframes swimLTR {
-          0% { left: -120px; }
+          0% { left: -150px; }
           100% { left: 100%; }
         }
         @keyframes swimRTL {
-          0% { right: -120px; }
+          0% { right: -150px; }
           100% { right: 100%; }
         }
 
