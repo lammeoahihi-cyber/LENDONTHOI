@@ -6,28 +6,25 @@ import { ACCEPTED_FILE_TYPES } from './constants';
 import {
   Sparkle,
   Star,
+  FallingSparkles,
   BubbleSVG,
   StarfishSVG,
   JellyfishSVG,
   RisingBubbles,
-  SwimmingFish
+  Couplet
 } from './components/Decorations';
 
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
-// ==========================================
-// CÁC THÀNH PHẦN HIỆU ỨNG TẾT ĐƯỢC THÊM LẠI
-// ==========================================
-
-// 1. Cơn mưa hoa xuân rơi tự động nhấp nháy phát quang theo nhịp thở (Pulse)
-const FallingFlowersTet = () => {
+// 1. Hiệu ứng Giao diện Tết: Mưa hoa xuân phát quang theo nhịp thở (Pulse)
+const BioluminescentFlowersTet = () => {
   const flowers = Array.from({ length: 30 }).map((_, i) => {
     const isMai = Math.random() > 0.5;
     return {
       id: i,
       left: `${Math.random() * 100}%`,
-      animationDuration: `${7 + Math.random() * 7}s`,
+      animationDuration: `${7 + Math.random() * 6}s`,
       animationDelay: `${Math.random() * 5}s`,
       color: isMai ? '#FDE047' : '#FBCFE8', // Mai vàng hoặc Đào hồng
       centerColor: isMai ? '#EA580C' : '#BE185D',
@@ -41,7 +38,7 @@ const FallingFlowersTet = () => {
       {flowers.map(f => (
         <div 
           key={f.id}
-          className="absolute -top-10 opacity-90 style-flower-tet"
+          className="absolute -top-10 opacity-90"
           style={{
             left: f.left,
             width: f.size,
@@ -50,7 +47,7 @@ const FallingFlowersTet = () => {
             animationDelay: `${f.animationDelay}, 0s`
           }}
         >
-          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 6px rgba(234,179,8,0.3))' }}>
+          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 8px rgba(234,179,8,0.4))' }}>
             <path d="M50,15 C60,0 80,15 70,35 C85,25 100,45 80,60 C90,80 65,95 50,75 C35,95 10,80 20,60 C0,45 15,25 30,35 C20,15 40,0 50,15 Z" fill={f.color}/>
             <circle cx="50" cy="48" r="12" fill={f.centerColor}/>
           </svg>
@@ -60,27 +57,98 @@ const FallingFlowersTet = () => {
   );
 };
 
-// 2. Câu đối đỏ đung đưa nguyên bản hai bên màn hình
-const CoupletTet: React.FC<{ text: string, position: 'left' | 'right' }> = ({ text, position }) => {
-  const words = text.split(' ');
+// 2. Hiệu ứng Giao diện Biển: Bào tử phát quang sinh học (Bioluminescent Spores)
+const BioluminescenceSpores = () => {
+  const spores = Array.from({ length: 30 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    bottom: `${Math.random() * 100}%`,
+    size: Math.random() * 5 + 3,
+    duration: `${3 + Math.random() * 4}s`,
+    delay: `${Math.random() * 3}s`,
+    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3', // Cyan hoặc Tím
+  }));
+
   return (
-    <div 
-      className={`fixed top-1/2 -translate-y-1/2 hidden xl:flex flex-col items-center z-20 animate-float ${position === 'left' ? 'left-4 lg:left-8' : 'right-4 lg:right-8'}`} 
-      style={{ animationDelay: position === 'left' ? '0s' : '1.5s' }}
-    >
-      <div className="bg-gradient-to-b from-red-700 via-red-600 to-red-800 text-yellow-300 py-10 px-4 rounded-[40px] border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] flex flex-col gap-5 items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-2 border-2 border-dashed border-yellow-300/40 rounded-[32px] pointer-events-none"></div>
-        {words.map((word, i) => (
-          <span key={i} className="font-tet-title text-2xl lg:text-3xl font-black uppercase drop-shadow-lg relative z-10" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
-            {word}
-          </span>
-        ))}
-      </div>
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
+      {spores.map(c => (
+        <div
+          key={c.id}
+          className="absolute rounded-full"
+          style={{
+            left: c.left, bottom: c.bottom, width: c.size, height: c.size, backgroundColor: c.color,
+            boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`,
+            animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath 2s ease-in-out infinite alternate`,
+            animationDelay: c.delay,
+          }}
+        />
+      ))}
     </div>
   );
 };
 
-// 3. Đàn cá phiên bản tương tác (Dùng cho giao diện Biển)
+// 3. Hiệu ứng Giao diện Biển: Màn nước sóng sánh nhòe 3D (Water Distortion)
+const WaterDistortionOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" style={{ animation: 'water-wave 8s ease-in-out infinite alternate', background: 'linear-gradient(180deg, rgba(34,211,238,0.03) 0%, rgba(30,58,138,0.03) 100%)' }} />
+);
+
+// 4. Hiệu ứng Chung: Bọt khí phụt từ con trỏ chuột khi click
+const ClickBubbleBurst = () => {
+  const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const id = Date.now() + Math.random();
+      setBursts(prev => [...prev, { id, x: e.clientX, y: e.clientY }]);
+      setTimeout(() => setBursts(prev => prev.filter(b => b.id !== id)), 900);
+    };
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+      {bursts.map(b => (
+        <div key={b.id} className="absolute" style={{ left: b.x, top: b.y }}>
+          {Array.from({ length: 6 }).map((_, i) => {
+            const size = Math.random() * 8 + 4;
+            const angle = (i * 60 * Math.PI) / 180;
+            const distance = Math.random() * 35 + 15;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance - 40;
+            return (
+              <div key={i} className="absolute rounded-full bg-white/20 border border-white/60" style={{ width: size, height: size, transform: 'translate(-50%, -50%)', animation: 'bubble-burst-action 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards', style: { '--tx': `${tx}px`, '--ty': `${ty}px` } as any }} />
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// 5. Hiệu ứng Chung: "Bão Bong Bóng Ăn Mừng" khi gộp đơn thành công xuất sắc
+const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
+  const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
+  useEffect(() => {
+    if (trigger) {
+      const newParticles = Array.from({ length: 75 }).map((_, i) => ({
+        id: Date.now() + i, left: `${15 + Math.random() * 70}%`, size: Math.random() * 22 + 8, delay: `${Math.random() * 0.8}s`, duration: `${1.5 + Math.random() * 2}s`
+      }));
+      setParticles(newParticles);
+      const timer = setTimeout(() => setParticles([]), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [trigger]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[999] overflow-hidden">
+      {particles.map(p => (
+        <div key={p.id} className="absolute bottom-[-50px] rounded-full bg-cyan-200/20 border-2 border-white/60 backdrop-blur-[0.5px]" style={{ left: p.left, width: p.size, height: p.size, animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`, animationDelay: p.delay, boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)' }} />
+      ))}
+    </div>
+  );
+};
+
+// 6. ĐÀN CÁ CŨ NÂNG CẤP: Đầu cá bơi chuẩn hướng, Size To Hơn, Click vào cá là phóng vút đi
 const InteractiveSwimmingFish = () => {
   const [fishes, setFishes] = useState(() => 
     Array.from({ length: 7 }).map((_, i) => ({
@@ -121,12 +189,7 @@ const InteractiveSwimmingFish = () => {
             animationIterationCount: 'infinite'
           }}
         >
-          <svg 
-            viewBox="0 0 100 50" 
-            fill="currentColor" 
-            style={{ transform: f.direction === 'swimLTR' ? 'scaleX(-1)' : 'none' }} 
-            className="w-full h-full text-cyan-500 drop-shadow-[0_4px_12px_rgba(6,182,212,0.4)]"
-          >
+          <svg viewBox="0 0 100 50" fill="currentColor" style={{ transform: f.direction === 'swimLTR' ? 'scaleX(-1)' : 'none' }} className="w-full h-full text-cyan-500 drop-shadow-[0_4px_12px_rgba(6,182,212,0.4)]">
             <path d="M10,25 C30,10 70,10 90,25 C70,40 30,40 10,25 M90,25 L100,15 L95,25 L100,35 Z" />
             <circle cx="30" cy="22" r="3" fill="rgba(0,0,0,0.5)" />
           </svg>
@@ -136,113 +199,6 @@ const InteractiveSwimmingFish = () => {
   );
 };
 
-// 4. Bọt khí phụt nhẹ từ chuột khi nhấp vào màn hình (Dùng chung)
-const ClickBubbleBurst = () => {
-  const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
-  
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const id = Date.now() + Math.random();
-      setBursts(prev => [...prev, { id, x: e.clientX, y: e.clientY }]);
-      setTimeout(() => {
-        setBursts(prev => prev.filter(b => b.id !== id));
-      }, 900);
-    };
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  }, []);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {bursts.map(b => (
-        <div key={b.id} className="absolute" style={{ left: b.x, top: b.y }}>
-          {Array.from({ length: 6 }).map((_, i) => {
-            const size = Math.random() * 8 + 4;
-            const angle = (i * 60 * Math.PI) / 180;
-            const distance = Math.random() * 35 + 15;
-            const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance - 40;
-            return (
-              <div
-                key={i}
-                className="absolute rounded-full bg-white/20 border border-white/60"
-                style={{
-                  width: size, height: size, transform: 'translate(-50%, -50%)',
-                  animation: 'bubble-burst-action 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
-                  style: { '--tx': `${tx}px`, '--ty': `${ty}px` } as any
-                }}
-              />
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn thành công
-const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
-  const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
-
-  useEffect(() => {
-    if (trigger) {
-      const newParticles = Array.from({ length: 75 }).map((_, i) => ({
-        id: Date.now() + i,
-        left: `${15 + Math.random() * 70}%`, 
-        size: Math.random() * 22 + 8,
-        delay: `${Math.random() * 0.8}s`,
-        duration: `${1.5 + Math.random() * 2}s`
-      }));
-      setParticles(newParticles);
-      const timer = setTimeout(() => setParticles([]), 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [trigger]);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[999] overflow-hidden">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="absolute bottom-[-50px] rounded-full bg-cyan-200/20 border-2 border-white/60 backdrop-blur-[0.5px]"
-          style={{
-            left: p.left, 
-            width: p.size, 
-            height: p.size,
-            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`,
-            animationDelay: p.delay,
-            boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)'
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// 6. Các hiệu ứng bổ trợ đại dương
-const BioluminescenceSpores = () => {
-  const spores = Array.from({ length: 30 }).map((_, i) => ({
-    id: i, left: `${Math.random() * 100}%`, bottom: `${Math.random() * 100}%`,
-    size: Math.random() * 5 + 3, duration: `${3 + Math.random() * 4}s`, delay: `${Math.random() * 3}s`,
-    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3',
-  }));
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
-      {spores.map(c => (
-        <div key={c.id} className="absolute rounded-full" style={{ left: c.left, bottom: c.bottom, width: c.size, height: c.size, backgroundColor: c.color, boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`, animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath 2s ease-in-out infinite alternate`, animationDelay: c.delay }} />
-      ))}
-    </div>
-  );
-};
-
-const WaterDistortionOverlay = () => (
-  <div className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" style={{ animation: 'water-wave 8s ease-in-out infinite alternate', background: 'linear-gradient(180deg, rgba(34,211,238,0.05) 0%, rgba(30,58,138,0.05) 100%)' }} />
-);
-
-
-// ==========================================
-// THÀNH PHẦN CHÍNH APP
-// ==========================================
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'ocean' | 'tet'>(() => {
     const saved = localStorage.getItem('theme_preference');
@@ -334,10 +290,7 @@ const App: React.FC = () => {
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
-      {/* Click bọt khí hoạt động toàn thời gian */}
       <ClickBubbleBurst />
-      
-      {/* Cơn bão bọt khí ăn mừng khi thành công */}
       <SuccessBubbleBlast trigger={showCelebrationBubbles} />
 
       {isOcean ? (
@@ -349,14 +302,16 @@ const App: React.FC = () => {
         </>
       ) : (
         <>
-          {/* TRẢ LẠI TRỌN BỘ HIỆU ỨNG TẾT ĐÃ CẬP NHẬT */}
-          <FallingFlowersTet />
-          <CoupletTet text="Đơn thưa, lòng không nản" position="left" />
-          <CoupletTet text="Chí vững, lộc ắt về" position="right" />
+          {/* GỌI LẠI HIỆU ỨNG TẾT THƯỢNG HẠNG */}
+          <BioluminescentFlowersTet />
         </>
       )}
       
-      {/* Các vật phẩm trang trí góc tuyệt đối */}
+      {/* TRẢ LẠI PHẦN ĐƯỜNG LINK CÂU ĐỐI GỐC CÓ TRUYỀN THEME={THEME} ĐỂ LUÔN HIỆN DIỆN */}
+      <Couplet text="Đơn thưa, lòng không nản" position="left" theme={theme} />
+      <Couplet text="Chí vững, lộc ắt về" position="right" theme={theme} />
+      
+      {/* Absolute floating decorations */}
       {isOcean ? (
         <>
           <div className="fixed top-24 left-10 w-24 h-28 opacity-45 pointer-events-none hidden lg:block animate-float z-0" style={{ animationDelay: '0.5s' }}>
@@ -391,7 +346,7 @@ const App: React.FC = () => {
           <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-355 shadow-yellow-200/50'}`}>
             {isOcean ? (
               <>
-                <span className="text-cyan-400 animate-pulse">☀️</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">☀️</span>
+                <span className="text-cyan-400 animate-pulse">🫧</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">🫧</span>
               </>
             ) : (
               <>
@@ -407,11 +362,11 @@ const App: React.FC = () => {
           </h1>
         </div>
 
-        {/* Platform Tabs */}
+        {/* Platform Tabs - Hiệu ứng 4: Thanh viền LED phát sáng tự động quét */}
         <div className="flex justify-center">
           <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 relative overflow-hidden ${
             isOcean 
-              ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.3)] shadow-[inset_0_2px_8px_rgba(6,182,212,0.1)]' 
+              ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.3)]' 
               : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'
           }`}>
             {isOcean && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" style={{ animation: 'scan-neon 3s linear infinite' }}></div>}
@@ -580,6 +535,7 @@ const App: React.FC = () => {
         </div>
       </div>
       
+      {/* KHU VỰC CHỨA CSS TRỰC TIẾP CỦA CẢ 2 PHIÊN BẢN */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar{width:4px;}
         .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
@@ -597,9 +553,7 @@ const App: React.FC = () => {
            background-size: 200% auto;
            animation: shimmer 3s linear infinite;
         }
-        .animate-pulse-slow { animation: pulseSlow 3s ease-in-out infinite alternate; }
 
-        @keyframes pulseSlow { 0% { opacity: 0.3; } 100% { opacity: 0.9; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes bounce { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
         @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
@@ -625,7 +579,7 @@ const App: React.FC = () => {
           100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.2); opacity: 0; }
         }
 
-        /* 3. Đốm sáng Bioluminescence lơ lửng */
+        /* 3. Đốm sáng Bioluminescence & Hoa xuân rơi */
         @keyframes float-glow {
           0% { transform: translateY(0) translateX(0); }
           100% { transform: translateY(-50px) translateX(20px); }
@@ -644,20 +598,21 @@ const App: React.FC = () => {
         }
 
         /* Trục bơi của cá (LTR và RTL) */
-        @keyframes swimLTR {
-          0% { left: -150px; }
-          100% { left: 100%; }
-        }
-        @keyframes swimRTL {
-          0% { right: -150px; }
-          100% { right: 100%; }
-        }
+        @keyframes swimLTR { 0% { left: -150px; } 100% { left: 100%; } }
+        @keyframes swimRTL { 0% { right: -150px; } 100% { right: 100%; } }
 
         /* Bong bóng sủi đáy ăn mừng */
         @keyframes rise {
           0% { transform: translateY(0) scale(0.6) translateX(0); opacity: 0; }
           15% { opacity: 0.9; }
           100% { transform: translateY(-115vh) scale(1.3) translateX(40px); opacity: 0; }
+        }
+
+        /* Hoa Tết rơi */
+        @keyframes fall {
+          0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+          10% { opacity: 0.8; }
+          100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
         @keyframes shake {
