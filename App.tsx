@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { processExcelFiles } from './services/excelService';
@@ -18,6 +17,93 @@ import {
 
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
+
+// Hiệu ứng bổ sung 1: Bào tử phát quang sinh học (Bioluminescent Spores nhấp nháy nhịp thở)
+const BioluminescenceSpores = () => {
+  const spores = Array.from({ length: 25 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    bottom: `${Math.random() * 100}%`,
+    size: Math.random() * 4 + 2,
+    duration: `${4 + Math.random() * 4}s`,
+    delay: `${Math.random() * 3}s`,
+    color: Math.random() > 0.5 ? '#22d3ee' : '#a855f7', // Cyan hoặc Tím
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
+      {spores.map(c => (
+        <div
+          key={c.id}
+          className="absolute rounded-full opacity-80 animate-pulse-slow"
+          style={{
+            left: c.left,
+            bottom: c.bottom,
+            width: c.size,
+            height: c.size,
+            backgroundColor: c.color,
+            boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`,
+            animation: `float-glow ${c.duration} ease-in-out infinite alternate`,
+            animationDelay: c.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Hiệu ứng bổ sung 2: Nhòe biến dạng nước biển 3D (Water Distortion Overlay)
+const WaterDistortionOverlay = () => (
+  <div 
+    className="fixed inset-0 pointer-events-none z-[1] opacity-30 backdrop-blur-[0.5px] mix-blend-overlay" 
+    style={{ animation: 'water-wave 12s ease-in-out infinite alternate' }}
+  />
+);
+
+// Hiệu ứng bổ sung 3: Bọt khí phụt từ con trỏ chuột khi nhấp (Click Bubble Burst)
+const ClickBubbleBurst = () => {
+  const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
+  
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const id = Date.now() + Math.random();
+      setBursts(prev => [...prev, { id, x: e.clientX, y: e.clientY }]);
+      setTimeout(() => {
+        setBursts(prev => prev.filter(b => b.id !== id));
+      }, 900);
+    };
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+      {bursts.map(b => (
+        <div key={b.id} className="absolute" style={{ left: b.x, top: b.y }}>
+          {Array.from({ length: 6 }).map((_, i) => {
+            const size = Math.random() * 8 + 4;
+            const angle = (i * 60 * Math.PI) / 180;
+            const distance = Math.random() * 35 + 15;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance - 40; // Đẩy bong bóng bay vút lên trên
+            return (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white/20 border border-white/60 backdrop-blur-[0.5px]"
+                style={{
+                  width: size, height: size,
+                  transform: 'translate(-50%, -50%)',
+                  animation: 'bubble-burst 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
+                  style: { '--tx': `${tx}px`, '--ty': `${ty}px` } as any
+                }}
+              />
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'ocean' | 'tet'>(() => {
@@ -126,10 +212,16 @@ const App: React.FC = () => {
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
+      {/* Hiệu ứng kích hoạt Click bọt khí chung cho cả 2 giao diện */}
+      <ClickBubbleBurst />
+
       {isOcean ? (
         <>
           <RisingBubbles />
           <SwimmingFish />
+          {/* Chèn thêm các đốm sáng và màn sóng nước nhòe độc quyền cho theme Ocean */}
+          <BioluminescenceSpores />
+          <WaterDistortionOverlay />
         </>
       ) : (
         <FallingSparkles />
@@ -170,7 +262,7 @@ const App: React.FC = () => {
 
       <div className="flex flex-col gap-10 relative z-10">
         <div className="text-center space-y-2">
-          <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-350 shadow-yellow-200/50'}`}>
+          <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-355 shadow-yellow-200/50'}`}>
             {isOcean ? (
               <>
                 <span className="text-cyan-400 animate-pulse">🫧</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">🫧</span>
@@ -182,16 +274,23 @@ const App: React.FC = () => {
             )}
           </div>
           <h1 
-            className={`text-5xl md:text-7xl font-black tracking-tight leading-none font-tet-title mt-4 text-transparent bg-clip-text animate-shimmer drop-shadow-lg transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-300 via-sky-100 to-teal-400' : 'bg-gradient-to-br from-yellow-500 via-yellow-300 to-amber-600'}`} 
+            className={`text-5xl md:text-7xl font-black tracking-tight leading-none font-tet-title mt-4 text-transparent bg-clip-text bg-gradient-to-br animate-shimmer drop-shadow-lg transition-all duration-500 ${isOcean ? 'from-cyan-300 via-sky-100 to-teal-400' : 'from-yellow-500 via-yellow-300 to-amber-600'}`} 
             style={{textShadow: isOcean ? '0 4px 20px rgba(6, 182, 212, 0.4)' : '0 4px 20px rgba(251, 191, 36, 0.4)'}}
           >
             LÊN ĐƠN THÔI
           </h1>
         </div>
 
-        {/* Platform Tabs */}
+        {/* Platform Tabs - Bổ sung hiệu ứng 4: Viền phát sáng Neon cho đại dương */}
         <div className="flex justify-center">
-          <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 ${isOcean ? 'bg-slate-900/50 backdrop-blur-md border-cyan-500/30 shadow-[inset_0_2px_8px_rgba(6,182,212,0.1)]' : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'}`}>
+          <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 relative overflow-hidden ${
+            isOcean 
+              ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
+              : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'
+          }`}>
+            {/* Thanh quét Neon lướt qua viền dưới khi ở chế độ ocean */}
+            {isOcean && <div className="absolute bottom-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan"></div>}
+
             <button 
               onClick={() => { setActivePlatform('shopee'); reset(); }}
               className={`px-8 py-3 rounded-xl font-bold text-lg transition-all border-2 duration-300 ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white border-orange-400 shadow-lg shadow-orange-500/35 scale-105' : (isOcean ? 'bg-slate-950/60 text-cyan-200 border-transparent hover:bg-slate-900 hover:border-cyan-500/30 hover:text-cyan-100' : 'bg-white text-orange-850 border-transparent hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600')}`}
@@ -233,7 +332,7 @@ const App: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`font-bold truncate text-sm ${isOcean ? 'text-cyan-200' : 'text-amber-950'}`}>{item.filename}</p>
-                        <div className={`flex justify-between items-center mt-1 text-xs font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-650'}`}>
+                        <div className={`flex justify-between items-center mt-1 text-xs font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-655'}`}>
                           <span>{item.type === 'upload' ? 'Tải lên' : 'Kết quả'}</span>
                           <span>{new Date(item.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
                         </div>
@@ -272,7 +371,7 @@ const App: React.FC = () => {
                     <p className={`text-2xl font-black text-center font-tet-title group-hover:scale-105 transition-transform ${isOcean ? 'text-cyan-100' : 'text-amber-955'}`}>
                       Thả file {activePlatform === 'shopee' ? 'Shopee' : 'Tiktok'} vào đây
                     </p>
-                    <p className={`mt-2 font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-650'}`}>hoặc nhấn để chọn file</p>
+                    <p className={`mt-2 font-medium ${isOcean ? 'text-cyan-400' : 'text-yellow-655'}`}>hoặc nhấn để chọn file</p>
                     <input type="file" ref={fileInputRef} className="hidden" accept=".xlsx,.xls" multiple onChange={handleFileChange} />
                   </div>
                 )}
@@ -300,7 +399,17 @@ const App: React.FC = () => {
                 <div className="flex flex-col gap-4">
                   {state.status === 'idle' && files.length > 0 && (
                     <button 
-                      onClick={handleProcess}
+                      onClick={(e) => {
+                        if (typeof (window as any).confetti === 'function') {
+                          (window as any).confetti({
+                            particleCount: 120,
+                            spread: 80,
+                            origin: { y: 0.6 },
+                            colors: isOcean ? ['#22d3ee', '#38bdf8', '#a855f7'] : ['#FFD700', '#FF0000', '#00FF00']
+                          });
+                        }
+                        handleProcess();
+                      }}
                       className={`w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/30' : (isOcean ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/30' : 'bg-gradient-to-r from-yellow-500 via-amber-550 to-red-600 hover:from-yellow-450 hover:to-red-500 text-white shadow-yellow-250/50')}`}
                     >
                       <span className="relative z-10 flex items-center gap-2">
@@ -344,7 +453,7 @@ const App: React.FC = () => {
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         TẢI FILE KẾT QUẢ
                       </a>
-                      <button onClick={reset} className={`w-full font-bold uppercase tracking-widest text-xs py-2 transition-colors ${isOcean ? 'text-cyan-400 hover:text-cyan-200' : 'text-yellow-650 hover:text-red-650'}`}>Làm lượt mới</button>
+                      <button onClick={reset} className={`w-full font-bold uppercase tracking-widest text-xs py-2 transition-colors ${isOcean ? 'text-cyan-400 hover:text-cyan-200' : 'text-yellow-655 hover:text-red-650'}`}>Làm lượt mới</button>
                     </div>
                   )}
 
@@ -377,7 +486,9 @@ const App: React.FC = () => {
            background-size: 200% auto;
            animation: shimmer 3s linear infinite;
         }
+        .animate-pulse-slow { animation: pulseSlow 3s ease-in-out infinite alternate; }
 
+        @keyframes pulseSlow { 0% { opacity: 0.3; } 100% { opacity: 0.9; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes bounce { 
           0%, 100% { transform: translateY(-5%); } 
@@ -418,6 +529,31 @@ const App: React.FC = () => {
         @keyframes shimmer {
           to { background-position: 200% center; }
         }
+
+        /* Hiệu ứng nhòe dạng sóng nước */
+        @keyframes water-wave {
+          0% { filter: hue-rotate(0deg) contrast(1); }
+          100% { filter: hue-rotate(10deg) contrast(1.05); }
+        }
+
+        /* Bọt khí nổ từ chuột */
+        @keyframes bubble-burst {
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.3); opacity: 0; }
+        }
+
+        /* Hạt phát sáng sinh học lơ lửng */
+        @keyframes float-glow {
+          0% { transform: translateY(0) scale(1); opacity: 0.3; }
+          100% { transform: translateY(-35px) scale(1.4); opacity: 0.9; }
+        }
+
+        /* Thanh quét phát sáng Neon */
+        @keyframes scan { 
+          0% { transform: translateX(-100%); } 
+          100% { transform: translateX(100%); } 
+        }
+
         @keyframes shake {
           10%, 90% { transform: translate3d(-1px, 0, 0); }
           20%, 80% { transform: translate3d(2px, 0, 0); }
