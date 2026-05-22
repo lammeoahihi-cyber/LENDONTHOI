@@ -6,59 +6,81 @@ import { ACCEPTED_FILE_TYPES } from './constants';
 import {
   Sparkle,
   Star,
-  FallingSparkles,
   BubbleSVG,
   StarfishSVG,
   JellyfishSVG,
   RisingBubbles,
-  Couplet
+  SwimmingFish
 } from './components/Decorations';
 
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
-// 1. Hiệu ứng Bào tử phát quang sinh học
-const BioluminescenceSpores = () => {
-  const spores = Array.from({ length: 30 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    bottom: `${Math.random() * 100}%`,
-    size: Math.random() * 5 + 3,
-    duration: `${3 + Math.random() * 4}s`,
-    delay: `${Math.random() * 3}s`,
-    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3',
-  }));
+// ==========================================
+// CÁC THÀNH PHẦN HIỆU ỨNG TẾT ĐƯỢC THÊM LẠI
+// ==========================================
+
+// 1. Cơn mưa hoa xuân rơi tự động nhấp nháy phát quang theo nhịp thở (Pulse)
+const FallingFlowersTet = () => {
+  const flowers = Array.from({ length: 30 }).map((_, i) => {
+    const isMai = Math.random() > 0.5;
+    return {
+      id: i,
+      left: `${Math.random() * 100}%`,
+      animationDuration: `${7 + Math.random() * 7}s`,
+      animationDelay: `${Math.random() * 5}s`,
+      color: isMai ? '#FDE047' : '#FBCFE8', // Mai vàng hoặc Đào hồng
+      centerColor: isMai ? '#EA580C' : '#BE185D',
+      size: Math.random() * 15 + 15,
+      pulseDuration: `${2 + Math.random() * 2}s`
+    };
+  });
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
-      {spores.map(c => (
-        <div
-          key={c.id}
-          className="absolute rounded-full"
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {flowers.map(f => (
+        <div 
+          key={f.id}
+          className="absolute -top-10 opacity-90 style-flower-tet"
           style={{
-            left: c.left, bottom: c.bottom, width: c.size, height: c.size, backgroundColor: c.color,
-            boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`,
-            animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
-            animationDelay: c.delay,
+            left: f.left,
+            width: f.size,
+            height: f.size,
+            animation: `fall ${f.animationDuration} linear infinite, pulseBreath ${f.pulseDuration} ease-in-out infinite alternate`,
+            animationDelay: `${f.animationDelay}, 0s`
           }}
-        />
+        >
+          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 6px rgba(234,179,8,0.3))' }}>
+            <path d="M50,15 C60,0 80,15 70,35 C85,25 100,45 80,60 C90,80 65,95 50,75 C35,95 10,80 20,60 C0,45 15,25 30,35 C20,15 40,0 50,15 Z" fill={f.color}/>
+            <circle cx="50" cy="48" r="12" fill={f.centerColor}/>
+          </svg>
+        </div>
       ))}
     </div>
   );
 };
 
-// 2. Nhòe biến dạng nước biển 3D
-const WaterDistortionOverlay = () => (
-  <div 
-    className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" 
-    style={{ 
-      animation: 'water-wave 8s ease-in-out infinite alternate',
-      background: 'linear-gradient(180deg, rgba(34,211,238,0.05) 0%, rgba(30,58,138,0.05) 100%)'
-    }}
-  />
-);
+// 2. Câu đối đỏ đung đưa nguyên bản hai bên màn hình
+const CoupletTet: React.FC<{ text: string, position: 'left' | 'right' }> = ({ text, position }) => {
+  const words = text.split(' ');
+  return (
+    <div 
+      className={`fixed top-1/2 -translate-y-1/2 hidden xl:flex flex-col items-center z-20 animate-float ${position === 'left' ? 'left-4 lg:left-8' : 'right-4 lg:right-8'}`} 
+      style={{ animationDelay: position === 'left' ? '0s' : '1.5s' }}
+    >
+      <div className="bg-gradient-to-b from-red-700 via-red-600 to-red-800 text-yellow-300 py-10 px-4 rounded-[40px] border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] flex flex-col gap-5 items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-2 border-2 border-dashed border-yellow-300/40 rounded-[32px] pointer-events-none"></div>
+        {words.map((word, i) => (
+          <span key={i} className="font-tet-title text-2xl lg:text-3xl font-black uppercase drop-shadow-lg relative z-10" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
+            {word}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-// 3. ĐÀN CÁ CŨ NÂNG CẤP: Sửa hướng đầu cá bơi chuẩn 100%
+// 3. Đàn cá phiên bản tương tác (Dùng cho giao diện Biển)
 const InteractiveSwimmingFish = () => {
   const [fishes, setFishes] = useState(() => 
     Array.from({ length: 7 }).map((_, i) => ({
@@ -99,7 +121,6 @@ const InteractiveSwimmingFish = () => {
             animationIterationCount: 'infinite'
           }}
         >
-          {/* SỬA LẠI ĐẦU CÁ: swimLTR thì lật ngược scaleX(-1) vì ảnh gốc đầu quay sang trái */}
           <svg 
             viewBox="0 0 100 50" 
             fill="currentColor" 
@@ -115,7 +136,7 @@ const InteractiveSwimmingFish = () => {
   );
 };
 
-// 4. Bọt khí phụt nhẹ từ chuột khi nhấp vào màn hình
+// 4. Bọt khí phụt nhẹ từ chuột khi nhấp vào màn hình (Dùng chung)
 const ClickBubbleBurst = () => {
   const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
   
@@ -159,7 +180,7 @@ const ClickBubbleBurst = () => {
   );
 };
 
-// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong (FIX LỖI DẤU NGOẶC TRÌNH DUYỆT)
+// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn thành công
 const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
   const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
 
@@ -188,7 +209,7 @@ const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
             left: p.left, 
             width: p.size, 
             height: p.size,
-            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`, // Đã sửa chuỗi bọc lệnh quay lại dạng chuẩn
+            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`,
             animationDelay: p.delay,
             boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)'
           }}
@@ -198,6 +219,30 @@ const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
   );
 };
 
+// 6. Các hiệu ứng bổ trợ đại dương
+const BioluminescenceSpores = () => {
+  const spores = Array.from({ length: 30 }).map((_, i) => ({
+    id: i, left: `${Math.random() * 100}%`, bottom: `${Math.random() * 100}%`,
+    size: Math.random() * 5 + 3, duration: `${3 + Math.random() * 4}s`, delay: `${Math.random() * 3}s`,
+    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3',
+  }));
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
+      {spores.map(c => (
+        <div key={c.id} className="absolute rounded-full" style={{ left: c.left, bottom: c.bottom, width: c.size, height: c.size, backgroundColor: c.color, boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`, animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath 2s ease-in-out infinite alternate`, animationDelay: c.delay }} />
+      ))}
+    </div>
+  );
+};
+
+const WaterDistortionOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" style={{ animation: 'water-wave 8s ease-in-out infinite alternate', background: 'linear-gradient(180deg, rgba(34,211,238,0.05) 0%, rgba(30,58,138,0.05) 100%)' }} />
+);
+
+
+// ==========================================
+// THÀNH PHẦN CHÍNH APP
+// ==========================================
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'ocean' | 'tet'>(() => {
     const saved = localStorage.getItem('theme_preference');
@@ -289,7 +334,10 @@ const App: React.FC = () => {
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
+      {/* Click bọt khí hoạt động toàn thời gian */}
       <ClickBubbleBurst />
+      
+      {/* Cơn bão bọt khí ăn mừng khi thành công */}
       <SuccessBubbleBlast trigger={showCelebrationBubbles} />
 
       {isOcean ? (
@@ -300,13 +348,15 @@ const App: React.FC = () => {
           <WaterDistortionOverlay />
         </>
       ) : (
-        <FallingSparkles />
+        <>
+          {/* TRẢ LẠI TRỌN BỘ HIỆU ỨNG TẾT ĐÃ CẬP NHẬT */}
+          <FallingFlowersTet />
+          <CoupletTet text="Đơn thưa, lòng không nản" position="left" />
+          <CoupletTet text="Chí vững, lộc ắt về" position="right" />
+        </>
       )}
       
-      <Couplet text="Đơn thưa, lòng không nản" position="left" theme={theme} />
-      <Couplet text="Chí vững, lộc ắt về" position="right" theme={theme} />
-      
-      {/* Absolute floating decorations */}
+      {/* Các vật phẩm trang trí góc tuyệt đối */}
       {isOcean ? (
         <>
           <div className="fixed top-24 left-10 w-24 h-28 opacity-45 pointer-events-none hidden lg:block animate-float z-0" style={{ animationDelay: '0.5s' }}>
@@ -341,7 +391,7 @@ const App: React.FC = () => {
           <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-355 shadow-yellow-200/50'}`}>
             {isOcean ? (
               <>
-                <span className="text-cyan-400 animate-pulse">🫧</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">🫧</span>
+                <span className="text-cyan-400 animate-pulse">☀️</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">☀️</span>
               </>
             ) : (
               <>
