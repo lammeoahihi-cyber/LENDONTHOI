@@ -58,13 +58,12 @@ const WaterDistortionOverlay = () => (
   />
 );
 
-// 3. ĐÀN CÁ CŨ NÂNG CẤP: Dáng mềm mại nguyên bản, Size To Hơn & Bị Click là phóng nhanh
+// 3. ĐÀN CÁ CŨ NÂNG CẤP: Sửa hướng đầu cá bơi chuẩn 100%
 const InteractiveSwimmingFish = () => {
   const [fishes, setFishes] = useState(() => 
     Array.from({ length: 7 }).map((_, i) => ({
       id: i,
       top: `${20 + Math.random() * 55}%`,
-      // NÂNG SIZE TO HƠN: Xen kẽ cá đại ca khổng lồ (65px - 85px) và cá thường to (40px - 50px)
       size: i % 3 === 0 ? Math.random() * 20 + 65 : Math.random() * 10 + 40,
       duration: `${16 + Math.random() * 10}s`,
       delay: `${Math.random() * 6}s`,
@@ -100,10 +99,15 @@ const InteractiveSwimmingFish = () => {
             animationIterationCount: 'infinite'
           }}
         >
-          {/* TRẢ LẠI CON CÁ CŨ ĐẸP ĐẼ CỦA BẠN */}
-          <svg viewBox="0 0 100 50" fill="currentColor" style={{ transform: f.direction === 'swimRTL' ? 'scaleX(-1)' : 'none' }} className="w-full h-full text-cyan-500 drop-shadow-[0_4px_12px_rgba(6,182,212,0.4)]">
+          {/* SỬA LẠI ĐẦU CÁ: swimLTR thì lật ngược scaleX(-1) vì ảnh gốc đầu quay sang trái */}
+          <svg 
+            viewBox="0 0 100 50" 
+            fill="currentColor" 
+            style={{ transform: f.direction === 'swimLTR' ? 'scaleX(-1)' : 'none' }} 
+            className="w-full h-full text-cyan-500 drop-shadow-[0_4px_12px_rgba(6,182,212,0.4)]"
+          >
             <path d="M10,25 C30,10 70,10 90,25 C70,40 30,40 10,25 M90,25 L100,15 L95,25 L100,35 Z" />
-            <circle cx="30" cy="22" r="35" fill="rgba(0,0,0,0.5)" style={{ r: '3px' }} />
+            <circle cx="30" cy="22" r="3" fill="rgba(0,0,0,0.5)" />
           </svg>
         </div>
       ))}
@@ -155,7 +159,7 @@ const ClickBubbleBurst = () => {
   );
 };
 
-// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong
+// 5. Hiệu ứng "Bão Bong Bóng Ăn Mừng" khi gộp đơn xong (FIX LỖI DẤU NGOẶC TRÌNH DUYỆT)
 const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
   const [particles, setParticles] = useState<Array<{ id: number, left: string, size: number, delay: string, duration: string }>>([]);
 
@@ -181,8 +185,11 @@ const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
           key={p.id}
           className="absolute bottom-[-50px] rounded-full bg-cyan-200/20 border-2 border-white/60 backdrop-blur-[0.5px]"
           style={{
-            left: p.left, width: p.size, height: p.size,
-            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards', animationDelay: p.delay`,
+            left: p.left, 
+            width: p.size, 
+            height: p.size,
+            animation: `rise ${p.duration} cubic-bezier(0.2, 0.6, 0.4, 1) forwards`, // Đã sửa chuỗi bọc lệnh quay lại dạng chuẩn
+            animationDelay: p.delay,
             boxShadow: 'inset 0 0 10px rgba(255,255,255,0.5), 0 0 15px rgba(34,211,238,0.3)'
           }}
         />
@@ -288,7 +295,6 @@ const App: React.FC = () => {
       {isOcean ? (
         <>
           <RisingBubbles />
-          {/* Chèn đàn cá cũ phiên bản tương tác khổng lồ */}
           <InteractiveSwimmingFish />
           <BioluminescenceSpores />
           <WaterDistortionOverlay />
@@ -465,7 +471,7 @@ const App: React.FC = () => {
                         }
                         handleProcess();
                       }}
-                      className={`w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/30' : (isOcean ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/30' : 'bg-gradient-to-r from-yellow-500 via-amber-550 to-red-600 hover:from-yellow-450 hover:to-red-500 text-white shadow-yellow-250/50')}`}
+                      className={`w-full py-5 rounded-2xl font-bold text-xl transition-all shadow-xl flex items-center justify-center gap-3 relative overflow-hidden group ${activePlatform === 'shopee' ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/30' : (isOcean ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-500/30' : 'bg-gradient-to-r from-yellow-500 via-amber-555 to-red-600 hover:from-yellow-450 hover:to-red-500 text-white shadow-yellow-250/50')}`}
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         {isOcean ? <BubbleSVG className="w-6 h-6 animate-bounce" /> : <span className="animate-pulse">✨</span>}
