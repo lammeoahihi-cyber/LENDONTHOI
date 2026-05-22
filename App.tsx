@@ -18,16 +18,16 @@ import {
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
-// Hiệu ứng bổ sung 1: Bào tử phát quang sinh học (Bioluminescent Spores nhấp nháy nhịp thở)
+// Hiệu ứng bổ sung 1: Bào tử phát quang sinh học (Bioluminescent Spores nhấp nháy nhịp thở)
 const BioluminescenceSpores = () => {
-  const spores = Array.from({ length: 25 }).map((_, i) => ({
+  const spores = Array.from({ length: 30 }).map((_, i) => ({
     id: i,
     left: `${Math.random() * 100}%`,
     bottom: `${Math.random() * 100}%`,
-    size: Math.random() * 4 + 2,
-    duration: `${4 + Math.random() * 4}s`,
+    size: Math.random() * 5 + 3,
+    duration: `${3 + Math.random() * 4}s`,
     delay: `${Math.random() * 3}s`,
-    color: Math.random() > 0.5 ? '#22d3ee' : '#a855f7', // Cyan hoặc Tím
+    color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3', // Cyan hoặc Tím
   }));
 
   return (
@@ -35,7 +35,7 @@ const BioluminescenceSpores = () => {
       {spores.map(c => (
         <div
           key={c.id}
-          className="absolute rounded-full opacity-80 animate-pulse-slow"
+          className="absolute rounded-full style-spore"
           style={{
             left: c.left,
             bottom: c.bottom,
@@ -43,7 +43,7 @@ const BioluminescenceSpores = () => {
             height: c.size,
             backgroundColor: c.color,
             boxShadow: `0 0 ${c.size * 3}px ${c.size}px ${c.color}`,
-            animation: `float-glow ${c.duration} ease-in-out infinite alternate`,
+            animation: `float-glow ${c.duration} ease-in-out infinite alternate, pulseBreath ${2 + Math.random() * 2}s ease-in-out infinite alternate`,
             animationDelay: c.delay,
           }}
         />
@@ -52,15 +52,18 @@ const BioluminescenceSpores = () => {
   );
 };
 
-// Hiệu ứng bổ sung 2: Nhòe biến dạng nước biển 3D (Water Distortion Overlay)
+// Hiệu ứng bổ sung 2: Nhòe biến dạng nước biển 3D (Water Distortion Overlay)
 const WaterDistortionOverlay = () => (
   <div 
-    className="fixed inset-0 pointer-events-none z-[1] opacity-30 backdrop-blur-[0.5px] mix-blend-overlay" 
-    style={{ animation: 'water-wave 12s ease-in-out infinite alternate' }}
+    className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" 
+    style={{ 
+      animation: 'water-wave 8s ease-in-out infinite alternate',
+      background: 'linear-gradient(180deg, rgba(34,211,238,0.05) 0%, rgba(30,58,138,0.05) 100%)'
+    }}
   />
 );
 
-// Hiệu ứng bổ sung 3: Bọt khí phụt từ con trỏ chuột khi nhấp (Click Bubble Burst)
+// Hiệu ứng bổ sung 3: Bọt khí phụt từ con trỏ chuột khi nhấp (Click Bubble Burst)
 const ClickBubbleBurst = () => {
   const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
   
@@ -93,7 +96,7 @@ const ClickBubbleBurst = () => {
                 style={{
                   width: size, height: size,
                   transform: 'translate(-50%, -50%)',
-                  animation: 'bubble-burst 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
+                  animation: 'bubble-burst-action 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
                   style: { '--tx': `${tx}px`, '--ty': `${ty}px` } as any
                 }}
               />
@@ -212,14 +215,14 @@ const App: React.FC = () => {
 
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
-      {/* Hiệu ứng kích hoạt Click bọt khí chung cho cả 2 giao diện */}
+      {/* Kích hoạt Click bọt khí chung */}
       <ClickBubbleBurst />
 
       {isOcean ? (
         <>
           <RisingBubbles />
           <SwimmingFish />
-          {/* Chèn thêm các đốm sáng và màn sóng nước nhòe độc quyền cho theme Ocean */}
+          {/* Kích hoạt đốm sáng sinh học và màn biến dạng nước */}
           <BioluminescenceSpores />
           <WaterDistortionOverlay />
         </>
@@ -281,15 +284,15 @@ const App: React.FC = () => {
           </h1>
         </div>
 
-        {/* Platform Tabs - Bổ sung hiệu ứng 4: Viền phát sáng Neon cho đại dương */}
+        {/* Platform Tabs - Hiệu ứng 4: Thanh ngang viền LED Neon tự quét */}
         <div className="flex justify-center">
           <div className={`p-2 rounded-2xl flex gap-2 border transition-all duration-500 relative overflow-hidden ${
             isOcean 
-              ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
+              ? 'bg-slate-900/60 backdrop-blur-md border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.3)] shadow-[inset_0_2px_8px_rgba(6,182,212,0.1)]' 
               : 'bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-300 shadow-inner'
           }`}>
-            {/* Thanh quét Neon lướt qua viền dưới khi ở chế độ ocean */}
-            {isOcean && <div className="absolute bottom-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan"></div>}
+            {/* Tia quét viền Neon phát sáng */}
+            {isOcean && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" style={{ animation: 'scan-neon 3s linear infinite' }}></div>}
 
             <button 
               onClick={() => { setActivePlatform('shopee'); reset(); }}
@@ -469,12 +472,14 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* KHU VỰC ĐỊNH NGHĨA KEYFRAMES CSS TRỰC TIẾP CHO TRÌNH DUYỆT */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar{width:4px;}
         .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
         .custom-scrollbar::-webkit-scrollbar-thumb{background:#22d3ee;border-radius:10px;}
         
-        /* Animations */
+        /* Animations gốc */
         .animate-spin-slow { animation: spin 12s linear infinite; }
         .animate-bounce-slow { animation: bounce 3s infinite; }
         .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
@@ -490,24 +495,16 @@ const App: React.FC = () => {
 
         @keyframes pulseSlow { 0% { opacity: 0.3; } 100% { opacity: 0.9; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes bounce { 
-          0%, 100% { transform: translateY(-5%); } 
-          50% { transform: translateY(0); } 
-        }
-        @keyframes sway {
-          from { transform: rotate(-8deg); }
-          to { transform: rotate(8deg); }
-        }
+        @keyframes bounce { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
+        @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+        
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(2deg); }
         }
-        @keyframes slideUp {
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; } to { opacity: 1; }
-        }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         @keyframes fishWiggle {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-8px) rotate(5deg); }
@@ -518,38 +515,40 @@ const App: React.FC = () => {
           90% { opacity: 0.6; }
           100% { transform: translateY(-115vh) scale(1.1) translateX(30px); opacity: 0; }
         }
-        @keyframes swimLTR {
-          0% { left: -150px; }
-          100% { left: 100%; }
-        }
-        @keyframes swimRTL {
-          0% { right: -150px; }
-          100% { right: 100%; }
-        }
-        @keyframes shimmer {
-          to { background-position: 200% center; }
-        }
+        @keyframes swimLTR { 0% { left: -150px; } 100% { left: 100%; } }
+        @keyframes swimRTL { 0% { right: -150px; } 100% { right: 100%; } }
+        @keyframes shimmer { to { background-position: 200% center; } }
 
-        /* Hiệu ứng nhòe dạng sóng nước */
+        /* ======================================================== */
+        /* ĐỊNH NGHĨA KEYFRAMES MỚI CỦA 4 HIỆU ỨNG (FIX ẨN HIỆU ỨNG) */
+        /* ======================================================== */
+
+        /* 1. Sóng nước nhòe màn hình */
         @keyframes water-wave {
-          0% { filter: hue-rotate(0deg) contrast(1); }
-          100% { filter: hue-rotate(10deg) contrast(1.05); }
+          0% { filter: hue-rotate(0deg) contrast(1) saturate(1); transform: scale(1); }
+          100% { filter: hue-rotate(8deg) contrast(1.03) saturate(1.05); transform: scale(1.01); }
         }
 
-        /* Bọt khí nổ từ chuột */
-        @keyframes bubble-burst {
-          0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-          100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.3); opacity: 0; }
+        /* 2. Bọt khí phụt nổ khi bấm chuột */
+        @keyframes bubble-burst-action {
+          0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
+          100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.2); opacity: 0; }
         }
 
-        /* Hạt phát sáng sinh học lơ lửng */
+        /* 3. Đốm sáng Bioluminescence lơ lửng */
         @keyframes float-glow {
-          0% { transform: translateY(0) scale(1); opacity: 0.3; }
-          100% { transform: translateY(-35px) scale(1.4); opacity: 0.9; }
+          0% { transform: translateY(0) translateX(0); }
+          100% { transform: translateY(-50px) translateX(20px); }
+        }
+        
+        /* 3. Nhịp thở phát quang nhịp nhàng */
+        @keyframes pulseBreath {
+          0% { opacity: 0.3; filter: brightness(0.8); }
+          100% { opacity: 0.9; filter: brightness(1.3); }
         }
 
-        /* Thanh quét phát sáng Neon */
-        @keyframes scan { 
+        /* 4. Thanh quét phát sáng Neon viền Tabs */
+        @keyframes scan-neon { 
           0% { transform: translateX(-100%); } 
           100% { transform: translateX(100%); } 
         }
