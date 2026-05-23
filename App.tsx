@@ -26,11 +26,10 @@ interface NoticeItem {
   desc: string;
 }
 
-// Lịch trình dự phòng mặc định nếu file notices.txt chưa hoạt động ngầm
 const DEFAULT_NOTICES: NoticeItem[] = [
   { id: 1, date: "25/05", title: "Gom đơn Shopee Sale", desc: "Chốt danh sách và gộp file đối soát đợt 1." },
   { id: 2, date: "28/05", title: "Thanh toán công nợ", desc: "Kiểm tra ví và thanh toán cho bên nhà cung cấp." },
-  { id: 3, date: "01/06", title: "Nhập kho hàng hè mới", desc: "Kiểm đếm số lượng áo thun vừa về." },
+  { id: 3, date: "01/06", title: "Nhập kho hàng hè mới", desc: "Kiểm đếm số lượng áo thun và váy hoa nhí vừa về." },
 ];
 
 // 1. Hiệu ứng Giao diện Tết: Mưa hoa xuân phát quang
@@ -179,11 +178,9 @@ const App: React.FC = () => {
 
   const [productList, setProductList] = useState<string[]>([]);
   const [randomProduct, setRandomProduct] = useState<string>('');
-  
-  // Nạp danh sách thông báo mẫu làm mặc định ban đầu để tránh bị ẩn bảng
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
 
-  // Đọc danh sách sản phẩm mẫu cố định
+  // Đọc danh sách sản phẩm
   useEffect(() => {
     const loadDefaultProducts = async () => {
       try {
@@ -226,7 +223,7 @@ const App: React.FC = () => {
     loadDefaultProducts();
   }, []);
 
-  // Tự động đọc file note thông báo công khai ngầm
+  // Tự động đọc file note thông báo (notices.txt)
   useEffect(() => {
     const loadNoticesFromTxt = async () => {
       try {
@@ -252,7 +249,7 @@ const App: React.FC = () => {
         if (parsedNotices.length > 0) {
           setNotices(parsedNotices);
         }
-      } catch (err) { console.error("Không tìm thấy file notices.txt ngầm, dùng dữ liệu mặc định."); }
+      } catch (err) { console.error("Sử dụng dữ liệu thông báo mặc định."); }
     };
     loadNoticesFromTxt();
   }, []);
@@ -381,43 +378,45 @@ const App: React.FC = () => {
       )}
 
       {/* ====================================================================
-          FIXED BẢNG THÔNG BÁO QUAN TRỌNG TRÊN GÓC PHẢI MÀN HÌNH CHUẨN RESPONSIVE LAPTOP
+          BẢNG THÔNG BÁO QUAN TRỌNG: ĐÃ ĐƯỢC PHÓNG TO & ĐẶT ABSOLUTE CUỘN MẤT KHI LĂN CHUỘT
           ==================================================================== */}
-      <div className="fixed top-[180px] right-2 lg:right-4 z-40 hidden md:block animate-slide-up" style={{ animationDelay: '0.3s' }}>
-        <div className={`p-5 rounded-2xl border-2 transition-all duration-500 shadow-2xl w-[260px] lg:w-[280px] space-y-4 ${
-          isOcean ? 'bg-slate-950/75 border-cyan-500/30 shadow-cyan-950/50 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
-        }`}>
-          <div className={`flex items-center gap-2 border-b pb-2 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
-            <span className={`text-base ${isOcean ? 'text-cyan-400 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
-            <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
-              Thông báo chung
-            </h2>
-          </div>
+      {notices.length > 0 && (
+        <div className="absolute top-[180px] right-2 lg:right-6 z-40 hidden md:block animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <div className={`p-6 rounded-3xl border-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[350px] space-y-4 ${
+            isOcean ? 'bg-slate-950/80 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
+          }`}>
+            <div className={`flex items-center gap-2 border-b pb-3 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
+              <span className={`text-base ${isOcean ? 'text-cyan-400 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
+              <h2 className={`text-sm font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
+                Thông báo quan trọng
+              </h2>
+            </div>
 
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-0.5 custom-scrollbar">
-            {notices.map(notice => (
-              <div 
-                key={notice.id} 
-                className={`p-2 rounded-xl border flex gap-2.5 hover:scale-[1.02] transition-transform ${
-                  isOcean ? 'bg-slate-900/60 border-cyan-500/10 hover:border-cyan-500/30' : 'bg-gradient-to-r from-red-50/50 to-white border-red-100 hover:border-red-300'
-                }`}
-              >
-                <div className={`w-10 h-10 flex-shrink-0 rounded-xl flex flex-col items-center justify-center font-mono font-black text-[11px] border ${
-                  isOcean ? 'bg-cyan-950/80 border-cyan-500/40 text-cyan-300' : 'bg-gradient-to-br from-red-500 to-red-600 border-red-400 text-white'
-                }`}>
-                  {notice.date}
+            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+              {notices.map(notice => (
+                <div 
+                  key={notice.id} 
+                  className={`p-3 rounded-xl border flex gap-3 hover:scale-[1.02] transition-transform ${
+                    isOcean ? 'bg-slate-900/60 border-cyan-500/10 hover:border-cyan-500/30' : 'bg-gradient-to-r from-red-50/50 to-white border-red-100 hover:border-red-300'
+                  }`}
+                >
+                  <div className={`w-11 h-11 flex-shrink-0 rounded-xl flex flex-col items-center justify-center font-mono font-black text-xs border ${
+                    isOcean ? 'bg-cyan-950/80 border-cyan-500/40 text-cyan-300' : 'bg-gradient-to-br from-red-500 to-red-600 border-red-400 text-white'
+                  }`}>
+                    {notice.date}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-xs font-black truncate ${isOcean ? 'text-cyan-100' : 'text-red-950'}`}>{notice.title}</p>
+                    <p className="text-[11px] opacity-85 leading-normal mt-1 line-clamp-3 text-justify pr-1">{notice.desc}</p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-black truncate ${isOcean ? 'text-cyan-100' : 'text-red-950'}`}>{notice.title}</p>
-                  <p className="text-[10px] opacity-80 leading-snug mt-0.5 line-clamp-2">{notice.desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* KHU VỰC CHỨA CẤU TRÚC ĐƠN HÀNG TRUNG TÂM */}
+      {/* KHU VỰC TRUNG TÂM */}
       <div className="flex flex-col gap-10 relative z-10">
         <div className="text-center space-y-2">
           <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-355 shadow-yellow-200/50'}`}>
@@ -435,7 +434,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* BỐ CỤC CHÍNH HAI CỘT CÂN ĐỐI NẰM GIỮA MÀN HÌNH */}
+        {/* BỐ CỤC ĐƠN HÀNG TRUNG TÂM */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4 max-w-5xl mx-auto w-full">
           
           {/* CỘT TRÁI (4 CỘT): HISTORY CARD */}
@@ -489,7 +488,7 @@ const App: React.FC = () => {
                       <div key={index} className={`flex items-center justify-between p-4 rounded-xl border group transition-colors animate-fade-in ${isOcean ? 'bg-cyan-950/40 border-cyan-500/20 hover:border-cyan-400' : 'bg-yellow-50/40 border-yellow-250 hover:border-amber-400'}`}>
                         <div className="flex items-center gap-3">
                            <div className={`p-2 rounded-lg shadow-sm border ${isOcean ? 'bg-slate-900 text-cyan-400 border-cyan-500/20' : 'bg-white text-yellow-655 border-yellow-250'}`}><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
-                           <span className={`text-sm font-bold truncate max-w-[200px] ${isOcean ? 'text-cyan-100' : 'text-amber-950'}`}>{f.name}</span>
+                           <span className={`text-sm font-bold truncate max-w-[200px] ${isOcean ? 'text-cyan-100' : 'text-amber-955'}`}>{f.name}</span>
                         </div>
                         {!processedFileUrl && <button onClick={() => removeFile(index)} className="text-rose-400 hover:text-rose-300 p-2"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
                       </div>
