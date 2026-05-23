@@ -330,17 +330,18 @@ const App: React.FC = () => {
     <div className="w-full relative">
       
       {/* ====================================================================
-          ĐÃ SỬA: SỬ DỤNG TOP-[64PX] ĐỂ BẢNG THÔNG BÁO GHIM KHÍT KHÔNG TÌ VẾT VÀO MÉP DƯỚI HEADER ĐEN
+          ĐÃ KHẮC PHỤC TRIỆU ĐỂ: FIXED Z-[999] ĐÈ LÊN TRÊN THANH ĐEN, TOP-[58PX] KHÍT RẠT
+          (Găm chặt vào mép dưới dải đen, triệt tiêu hoàn toàn đường viền hở)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-[64px] right-0 z-50 hidden md:block animate-slide-up">
-          <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
-            isOcean ? 'bg-slate-950/85 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
+        <div className="fixed top-[58px] right-0 z-[999] hidden md:block animate-slide-up">
+          <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 border-t-0 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
+            isOcean ? 'bg-slate-950 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
             
-            {/* Tiêu đề dải thanh ngang găm khít không hở kẽ xanh biển */}
-            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900/50' : 'border-yellow-200 bg-yellow-50/60'}`}>
-              <span className={`text-base ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
+            {/* Loại bỏ viền trên, đẩy Padding sát rạt để chạm khít dải menu đen không tì vết */}
+            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/80'}`}>
+              <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
               </h2>
@@ -467,7 +468,7 @@ const App: React.FC = () => {
             </div>
 
             {/* CỘT PHẢI (8 CỘT): KHU VỰC THẢ FILE & "HÔM NAY BÁN GÌ?" */}
-            <div className="lg:col-span-8 space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="lg:col-span-8 space-y-6 order-1 lg:order-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <div className={`p-2 rounded-[2.5rem] border-4 shadow-2xl overflow-hidden relative transition-all duration-500 ${isOcean ? 'bg-slate-950/50 border-cyan-500/30 shadow-cyan-950/30' : 'bg-white border-yellow-300 shadow-yellow-100/50'}`}>
                 <div className="p-8 relative z-10">
                   {files.length < MAX_FILES && !processedFileUrl && (
@@ -500,7 +501,7 @@ const App: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Ô QUAY SỐ SẢN PHẨM NGẪU NHIÊN CÓ SẴN */}
+                  {/* Ô QUAY SỐ SẢN PHẨM NGẪU NHIÊN CÓ SẴN (products.xlsx) */}
                   {productList.length > 0 && !processedFileUrl && (
                     <div className={`p-5 mb-8 rounded-2xl border-2 transition-all duration-500 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg ${isOcean ? 'bg-slate-900/60 border-cyan-500/20 text-cyan-100' : 'bg-amber-50/60 border-yellow-300 text-amber-900'}`}>
                       <div className="flex-1 text-center sm:text-left min-w-0 w-full">
@@ -519,7 +520,7 @@ const App: React.FC = () => {
                     {state.status === 'processing' && <div className={`flex flex-col items-center justify-center py-12 gap-5 rounded-3xl border-2 shadow-inner transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-cyan-950/60 to-blue-950/60 border-cyan-500/30' : 'bg-gradient-to-br from-yellow-50 to-amber-100/60 border-yellow-335'}`}><div className="relative"><div className={`absolute inset-0 blur-2xl opacity-30 rounded-full animate-pulse ${isOcean ? 'bg-cyan-400' : 'bg-yellow-500'}`}></div><BubbleSVG className="w-16 h-16 animate-bounce text-cyan-400 relative z-10" /></div><p className="font-bold uppercase tracking-widest text-sm animate-pulse">{state.message}</p></div>}
                     {state.status === 'success' && processedFileUrl && (
                       <div className="space-y-5 animate-slide-up">
-                        <div className={`border p-6 rounded-2xl flex items-center gap-5 relative overflow-hidden shadow-sm transition-all duration-500 ${isOcean ? 'bg-gradient-to-r from-emerald-950/60 to-teal-950/60 border-emerald-500/40' : 'bg-gradient-to-r from-emerald-50 to-teal-100/50 border-emerald-300'}`}><div className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-3 rounded-full shadow-lg z-10 animate-bounce-slow"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div><div><p className="font-black text-lg">Hoàn tất xuất sắc!</p><p className="text-sm opacity-80">{state.message}</p></div></div>
+                        <div className={`border p-6 rounded-2xl flex items-center gap-5 relative overflow-hidden shadow-sm transition-all duration-500 ${isOcean ? 'bg-gradient-to-br from-slate-900 to-slate-950 border-emerald-500/40' : 'bg-gradient-to-r from-emerald-50 to-teal-100/50 border-emerald-300'}`}><div className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-3 rounded-full shadow-lg z-10 animate-bounce-slow"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div><div><p className="font-black text-lg">Hoàn tất xuất sắc!</p><p className="text-sm opacity-80">{state.message}</p></div></div>
                         <a href={processedFileUrl} download={`RESULT_${Date.now()}.xlsx`} className={`flex items-center justify-center gap-4 w-full py-6 rounded-2xl font-black text-xl shadow-xl transition-all border-2 ${isOcean ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300/40 shadow-cyan-550/30' : 'bg-gradient-to-r from-yellow-500 via-amber-500 to-red-600 text-white border-yellow-300/40 shadow-yellow-250/30'}`}>TẢI FILE KẾT QUẢ</a>
                         <button onClick={reset} className="w-full font-bold uppercase tracking-widest text-xs py-2 opacity-65 hover:opacity-100">Làm lượt mới</button>
                       </div>
