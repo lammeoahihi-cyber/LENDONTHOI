@@ -334,7 +334,7 @@ const App: React.FC = () => {
           (Nằm ngoài toàn bộ Layout, không bao giờ lo đè lên chữ tiêu đề chính)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-22 right-1 lg:right-4 z-50 hidden md:block animate-slide-up">
+        <div className="absolute top-30 right-2 lg:right-4 z-50 hidden md:block animate-slide-up">
           <div className={`p-4 rounded-2xl border-2 transition-all duration-500 shadow-2xl w-[310px] lg:w-[340px] space-y-3 ${
             isOcean ? 'bg-slate-950/90 border-cyan-500/40 shadow-cyan-950/70 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
