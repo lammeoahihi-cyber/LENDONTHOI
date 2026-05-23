@@ -335,10 +335,10 @@ const App: React.FC = () => {
           ==================================================================== */}
       {notices.length > 0 && (
         <div className="absolute top-18 right-2 lg:right-4 z-50 hidden md:block animate-slide-up">
-          <div className={`p-4 rounded-2xl border-2 transition-all duration-500 shadow-2xl w-[310px] lg:w-[340px] space-y-3 ${
+          <div className={`pb-4 px-4 pt-0 rounded-2xl border-2 transition-all duration-500 shadow-2xl w-[310px] lg:w-[340px] space-y-3 ${
             isOcean ? 'bg-slate-950/90 border-cyan-500/40 shadow-cyan-950/70 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
-            <div className={`flex items-center gap-2 border-b pb-2 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
+            <div className={`flex items-center gap-2 border-b pb-3 pt-3 -mx-4 px-4 rounded-t-[14px] ${isOcean ? 'border-cyan-500/30 bg-slate-900/40' : 'border-yellow-200 bg-yellow-50/50'}`}>
               <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
