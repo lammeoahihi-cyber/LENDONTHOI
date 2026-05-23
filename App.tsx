@@ -330,17 +330,15 @@ const App: React.FC = () => {
     <div className="w-full relative">
       
       {/* ====================================================================
-          ĐÃ ĐẨY LÊN SÁT VIỀN TRÊN TRANG (TOP-0 RIGHT-0 FIXED) VÀ XÓA BỎ CHỮ
-          (Găm chặt vào biên đỉnh góc phải màn hình, có z-[999] đè lên thanh đen)
+          BẢNG THÔNG BÁO QUAN TRỌNG: TOP-0 RIGHT-0 (Khít chặt biên đỉnh góc phải)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="fixed top-0 right-0 z-[999] hidden md:block animate-slide-up">
+        <div className="absolute top-0 right-0 z-[999] hidden md:block animate-slide-up">
           <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 border-t-0 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
             isOcean ? 'bg-slate-950 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
             
-            {/* Thanh tiêu đề chạm khít viền đỉnh trang web */}
-            <div className={`flex items-center gap-2 border-b pb-3 pt-0 -mx-5 px-5 rounded-t-2xl ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/80'}`}>
+            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/60'}`}>
               <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
@@ -535,16 +533,65 @@ const App: React.FC = () => {
         </div>
       </Layout>
 
-      {/* CHỮA CHÁY NGẦM: BẮT BUỘC XOÁ CHỮ CÔNG CỤ VÀ HƯỚNG DẪN TRÊN NAVBAR QUA CSS LAYOUT */}
+      {/* ====================================================================
+          SIÊU CẬP NHẬT CSS: ÉP SÁT THANH MENU NGANG LÊN ĐỈNH TRANG WEB 100% KHÍT TỊT
+          (Xoá bỏ hoàn toàn hai chữ Công cụ / Hướng dẫn cản đường)
+          ==================================================================== */}
       <style>{`
-        /* Tìm đến đúng thẻ chứa chữ Công cụ và Hướng dẫn của Header để triệt tiêu hiển thị */
+        /* 1. Xoá bỏ triệt để chữ Công cụ và Hướng dẫn trên dải menu */
         header a[href*="tool"], header button, .flex.items-center.gap-6, header .flex.gap-6 {
           display: none !important;
         }
-        /* Phá bỏ giới hạn nếu Navbar của bạn có class ẩn danh riêng biệt */
         header div:has(> a), header .ml-auto, header .justify-end {
           display: none !important;
         }
+
+        /* 2. ÉP THANH MENU NGANG XANH ĐẬM (NAVBAR) BAY LÊN SÁT MÈP TRÊN CÙNG TRÌNH DUYỆT */
+        header, .navbar, [class*="Navbar"], [class*="Header"] {
+          margin-top: 0 !important;
+          padding-top: 0 !important;
+          top: 0 !important;
+          position: relative !important;
+        }
+        
+        /* Triệt tiêu khoảng cách thụt lề trên đỉnh trang body */
+        body, #root, .app-container {
+          padding-top: 0 !important;
+          margin-top: 0 !important;
+        }
+
+        /* 3. TÙY CHỈNH THANH LĂN CHUỘT MƯỢT MÀ */
+        .custom-scrollbar::-webkit-scrollbar{width:4px;}
+        .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
+        .custom-scrollbar::-webkit-scrollbar-thumb{background:#22d3ee;border-radius:10px;}
+        
+        /* Các hiệu ứng chuyển động */
+        .animate-spin-slow { animation: spin 12s linear infinite; }
+        .animate-bounce-slow { animation: bounce 3s infinite; }
+        .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-slide-up { animation: slideUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        .animate-shimmer { background-size: 200% auto; animation: shimmer 3s linear infinite; }
+        
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
+        @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fishWiggle { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(3deg); } }
+        @keyframes water-wave { 0% { filter: hue-rotate(0deg) contrast(1); } 100% { filter: hue-rotate(8deg) contrast(1.03); } }
+        @keyframes bubble-burst-action { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; } 100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.2); opacity: 0; } }
+        @keyframes float-glow { 0% { transform: translateY(0) translateX(0); } 100% { transform: translateY(-50px) translateX(20px); } }
+        @keyframes pulseBreath { 0% { opacity: 0.3; filter: brightness(0.8); } 100% { opacity: 0.9; filter: brightness(1.3); } }
+        @keyframes scan-neon { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes swimLTR { 0% { left: -150px; } 100% { left: 100%; } }
+        @keyframes swimRTL { 0% { right: -150px; } 100% { right: 100%; } }
+        @keyframes rise { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 15% { opacity: 0.9; } 100% { transform: translateY(-115vh) scale(1.3); opacity: 0; } }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
       `}</style>
     </div>
   );
