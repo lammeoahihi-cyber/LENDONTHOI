@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout } from './components/Layout';
 import { processExcelFiles } from './services/excelService';
 import { ProcessingState, HistoryItem, Platform } from './types';
 import { ACCEPTED_FILE_TYPES } from './constants';
@@ -327,13 +326,13 @@ const App: React.FC = () => {
   const isOcean = theme === 'ocean';
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative min-h-screen pt-4">
       
       {/* ====================================================================
-          BẢNG THÔNG BÁO QUAN TRỌNG: TOP-0 RIGHT-0 (Khít chặt biên đỉnh góc phải)
+          BẢNG THÔNG BÁO QUAN TRỌNG: GHÌ CHẶT VÀO ĐỈNH TRANG WEB (TOP-0 RIGHT-0 FIXED Z-[999])
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-0 right-0 z-[999] hidden md:block animate-slide-up">
+        <div className="fixed top-0 right-0 z-[999] hidden md:block animate-slide-up">
           <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 border-t-0 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
             isOcean ? 'bg-slate-950 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
@@ -369,7 +368,8 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <Layout theme={theme} toggleTheme={toggleTheme}>
+      {/* KHU VỰC THAY THẾ LAYOUT: BẤT ĐẦU VÙNG GIAO DIỆN CHÍNH */}
+      <div className="px-4 py-6">
         <ClickBubbleBurst />
         <SuccessBubbleBlast trigger={showCelebrationBubbles} />
 
@@ -419,9 +419,19 @@ const App: React.FC = () => {
           </>
         )}
 
-        {/* KHU VỰC TRUNG TÂM */}
-        <div className="flex flex-col gap-10 relative z-10">
-          <div className="text-center space-y-2">
+        {/* KHU VỰC TIÊU ĐỀ TRUNG TÂM NẰM TRONG TRANG WEB */}
+        <div className="flex flex-col gap-10 relative z-10 max-w-6xl mx-auto">
+          <div className="text-center space-y-2 flex flex-col items-center">
+            {/* Nút bấm chuyển Đổi Theme đặt ở đỉnh trang thay thế tính năng Layout cũ */}
+            <button 
+              onClick={toggleTheme}
+              className={`mb-4 px-5 py-2 rounded-full font-bold text-xs tracking-wider uppercase transition-all border shadow-md hover:scale-105 active:scale-95 ${
+                isOcean ? 'bg-slate-900 text-cyan-300 border-cyan-500/30' : 'bg-yellow-100 text-yellow-800 border-yellow-300'
+              }`}
+            >
+              🌓 ĐỔI CHẾ ĐỘ GIÊN: {isOcean ? 'ĐÁY BIỂN' : 'NGÀY TẾT'}
+            </button>
+
             <div className={`inline-flex items-center gap-2 px-6 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase border shadow-lg transition-all duration-500 ${isOcean ? 'bg-slate-900/60 text-cyan-200 border-cyan-500/40 shadow-cyan-950/40' : 'bg-gradient-to-r from-yellow-105 via-yellow-100 to-amber-100 text-yellow-805 border-yellow-355 shadow-yellow-200/50'}`}>
               {isOcean ? ( <> <span className="text-cyan-400 animate-pulse">🫧</span> Phiên Bản ĐÁY BIỂN <span className="text-cyan-400 animate-pulse">🫧</span> </> ) : ( <> <span className="text-yellow-600 animate-pulse">✨</span> Phiên Bản CÓ ĐƠN <span className="text-yellow-600 animate-pulse">✨</span> </> )}
             </div>
@@ -437,8 +447,8 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* BỐ CỤC ĐƠN HÀNG TRUNG TÂM */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4 max-w-5xl mx-auto w-full">
+          {/* BỐ CỤC ĐƠN HÀNG TRUNG TÂM HAI CỘT CÂN ĐỐI */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
             
             {/* CỘT TRÁI (4 CỘT): HISTORY CARD */}
             <div className="lg:col-span-4 space-y-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
@@ -531,41 +541,14 @@ const App: React.FC = () => {
 
           </div>
         </div>
-      </Layout>
+      </div>
 
-      {/* ====================================================================
-          SIÊU CẬP NHẬT CSS: ÉP SÁT THANH MENU NGANG LÊN ĐỈNH TRANG WEB 100% KHÍT TỊT
-          (Xoá bỏ hoàn toàn hai chữ Công cụ / Hướng dẫn cản đường)
-          ==================================================================== */}
       <style>{`
-        /* 1. Xoá bỏ triệt để chữ Công cụ và Hướng dẫn trên dải menu */
-        header a[href*="tool"], header button, .flex.items-center.gap-6, header .flex.gap-6 {
-          display: none !important;
-        }
-        header div:has(> a), header .ml-auto, header .justify-end {
-          display: none !important;
-        }
-
-        /* 2. ÉP THANH MENU NGANG XANH ĐẬM (NAVBAR) BAY LÊN SÁT MÈP TRÊN CÙNG TRÌNH DUYỆT */
-        header, .navbar, [class*="Navbar"], [class*="Header"] {
-          margin-top: 0 !important;
-          padding-top: 0 !important;
-          top: 0 !important;
-          position: relative !important;
-        }
-        
-        /* Triệt tiêu khoảng cách thụt lề trên đỉnh trang body */
-        body, #root, .app-container {
-          padding-top: 0 !important;
-          margin-top: 0 !important;
-        }
-
-        /* 3. TÙY CHỈNH THANH LĂN CHUỘT MƯỢT MÀ */
+        /* KHU VỰC CSS BỔ TRỢ HỆ THỐNG */
         .custom-scrollbar::-webkit-scrollbar{width:4px;}
         .custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
         .custom-scrollbar::-webkit-scrollbar-thumb{background:#22d3ee;border-radius:10px;}
         
-        /* Các hiệu ứng chuyển động */
         .animate-spin-slow { animation: spin 12s linear infinite; }
         .animate-bounce-slow { animation: bounce 3s infinite; }
         .animate-sway { animation: sway 3s ease-in-out infinite alternate; }
