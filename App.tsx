@@ -330,16 +330,16 @@ const App: React.FC = () => {
     <div className="w-full relative">
       
       {/* ====================================================================
-          ĐÃ KHẮC PHỤC TRIỆU ĐỂ: FIXED Z-[999] ĐÈ LÊN TRÊN THANH ĐEN, TOP-[58PX] KHÍT RẠT
-          (Găm chặt vào mép dưới dải đen, triệt tiêu hoàn toàn đường viền hở)
+          ĐÃ ĐẨY LÊN SÁT VIỀN TRÊN TRANG (TOP-0 RIGHT-0 FIXED) VÀ XÓA BỎ CHỮ
+          (Găm chặt vào biên đỉnh góc phải màn hình, có z-[999] đè lên thanh đen)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="fixed top-[58px] right-0 z-[999] hidden md:block animate-slide-up">
+        <div className="fixed top-0 right-0 z-[999] hidden md:block animate-slide-up">
           <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 border-t-0 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
             isOcean ? 'bg-slate-950 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
             
-            {/* Loại bỏ viền trên, đẩy Padding sát rạt để chạm khít dải menu đen không tì vết */}
+            {/* Thanh tiêu đề chạm khít viền đỉnh trang web */}
             <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/80'}`}>
               <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
@@ -534,6 +534,18 @@ const App: React.FC = () => {
           </div>
         </div>
       </Layout>
+
+      {/* CHỮA CHÁY NGẦM: BẮT BUỘC XOÁ CHỮ CÔNG CỤ VÀ HƯỚNG DẪN TRÊN NAVBAR QUA CSS LAYOUT */}
+      <style>{`
+        /* Tìm đến đúng thẻ chứa chữ Công cụ và Hướng dẫn của Header để triệt tiêu hiển thị */
+        header a[href*="tool"], header button, .flex.items-center.gap-6, header .flex.gap-6 {
+          display: none !important;
+        }
+        /* Phá bỏ giới hạn nếu Navbar của bạn có class ẩn danh riêng biệt */
+        header div:has(> a), header .ml-auto, header .justify-end {
+          display: none !important;
+        }
+      `}</style>
     </div>
   );
 };
