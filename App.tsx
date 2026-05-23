@@ -340,7 +340,7 @@ const App: React.FC = () => {
           }`}>
             
             {/* Thanh tiêu đề chạm khít viền đỉnh trang web */}
-            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/80'}`}>
+            <div className={`flex items-center gap-2 border-b pb-3 pt-0 -mx-5 px-5 rounded-t-2xl ${isOcean ? 'border-cyan-500/30 bg-slate-900' : 'border-yellow-200 bg-yellow-50/80'}`}>
               <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
