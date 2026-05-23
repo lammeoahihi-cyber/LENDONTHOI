@@ -223,7 +223,7 @@ const App: React.FC = () => {
     loadDefaultProducts();
   }, []);
 
-  // Tự động đọc file note thông báo (notices.txt)
+  // Tự động đọc file note thông báo
   useEffect(() => {
     const loadNoticesFromTxt = async () => {
       try {
@@ -378,15 +378,15 @@ const App: React.FC = () => {
       )}
 
       {/* ====================================================================
-          BẢNG THÔNG BÁO QUAN TRỌNG: ĐÃ ĐƯỢC PHÓNG TO & ĐẶT ABSOLUTE CUỘN MẤT KHI LĂN CHUỘT
+          ĐƯA LÊN TRÊN HẲN GÓC PHẢI TRANG WEB (FIXED BIÊN PHẢI TO ĐẸP CỐ ĐỊNH, KHÔNG BỊ CHÈN ÉP)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-[180px] right-2 lg:right-6 z-40 hidden md:block animate-slide-up" style={{ animationDelay: '0.3s' }}>
+        <div className="absolute top-6 right-6 z-40 hidden md:block animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <div className={`p-6 rounded-3xl border-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[350px] space-y-4 ${
-            isOcean ? 'bg-slate-950/80 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
+            isOcean ? 'bg-slate-950/85 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
             <div className={`flex items-center gap-2 border-b pb-3 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
-              <span className={`text-base ${isOcean ? 'text-cyan-400 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
+              <span className={`text-base ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-sm font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
               </h2>
@@ -434,7 +434,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* BỐ CỤC ĐƠN HÀNG TRUNG TÂM */}
+        {/* BỐ CỤC ĐƠN HÀNG TRUNG TÂM GIỮ NGUYÊN */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4 max-w-5xl mx-auto w-full">
           
           {/* CỘT TRÁI (4 CỘT): HISTORY CARD */}
@@ -442,7 +442,7 @@ const App: React.FC = () => {
             <div className={`p-7 rounded-3xl border-2 transition-all duration-500 shadow-2xl hover:-translate-y-1 space-y-4 ${isOcean ? 'bg-slate-950/50 border-cyan-500/20 shadow-cyan-950/40 text-cyan-100' : 'bg-white border-yellow-200 shadow-yellow-100/50 text-amber-900'}`}>
               <div className={`flex items-center justify-between border-b pb-3 ${isOcean ? 'border-cyan-500/30' : 'border-yellow-200'}`}>
                 <h2 className={`text-lg font-bold font-tet-title ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>Nhật ký</h2>
-                {history.length > 0 && <button onClick={clearHistory} className={`text-xs font-black uppercase tracking-wider ${isOcean ? 'text-cyan-404 hover:text-cyan-200' : 'text-yellow-600 hover:text-red-500'}`}>Xóa</button>}
+                {history.length > 0 && <button onClick={clearHistory} className={`text-xs font-black uppercase tracking-wider ${isOcean ? 'text-cyan-400 hover:text-cyan-200' : 'text-yellow-600 hover:text-red-500'}`}>Xóa</button>}
               </div>
               <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                 {history.length === 0 ? (
