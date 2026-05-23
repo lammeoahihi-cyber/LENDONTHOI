@@ -180,7 +180,7 @@ const App: React.FC = () => {
   const [randomProduct, setRandomProduct] = useState<string>('');
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
 
-  // Đọc danh sách sản phẩm
+  // Đọc danh sách sản phẩm mẫu cố định
   useEffect(() => {
     const loadDefaultProducts = async () => {
       try {
@@ -330,37 +330,40 @@ const App: React.FC = () => {
     <div className="w-full relative">
       
       {/* ====================================================================
-          VỊ TRÍ CHIẾN LƯỢC: GHIM CHẶT VÀO THANH TRÊN (TOP-0) VÀ SÁT CẠNH PHẢI (RIGHT-0)
-          (Nằm ngoài toàn bộ Layout, không bao giờ lo đè lên chữ tiêu đề chính)
+          ĐÃ FIX LỖI: ĐẶT ABSOLUTE TOÀN DIỆN, NÉP KHÍT RẠT VÀO BIÊN TRÊN VÀ BIÊN PHẢI MÀN HÌNH
+          (Không bao giờ chạm vào logo lớn, dải dập chữ dính khít không khoảng trống đen)
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-18 right-2 lg:right-4 z-50 hidden md:block animate-slide-up">
-          <div className={`pb-4 px-4 pt-0 rounded-2xl border-2 transition-all duration-500 shadow-2xl w-[310px] lg:w-[340px] space-y-3 ${
-            isOcean ? 'bg-slate-950/90 border-cyan-500/40 shadow-cyan-950/70 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
+        <div className="absolute top-[80px] right-0 z-50 hidden md:block animate-slide-up">
+          <div className={`pb-5 px-5 pt-0 rounded-l-3xl rounded-br-none rounded-tr-none border-y-2 border-l-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
+            isOcean ? 'bg-slate-950/85 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
-            <div className={`flex items-center gap-2 border-b pb-3 pt-3 -mx-4 px-4 rounded-t-[14px] ${isOcean ? 'border-cyan-500/30 bg-slate-900/40' : 'border-yellow-200 bg-yellow-50/50'}`}>
-              <span className={`text-sm ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
+            
+            {/* Thanh tiêu đề dính khít sát viền trên bảng, bo góc theo viền chuẩn */}
+            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-[22px] ${isOcean ? 'border-cyan-500/30 bg-slate-900/50' : 'border-yellow-200 bg-yellow-50/60'}`}>
+              <span className={`text-base ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
               </h2>
             </div>
 
-            <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+            {/* Nội dung danh sách chữ hiển thị rộng rãi, thoải mái */}
+            <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
               {notices.map(notice => (
                 <div 
                   key={notice.id} 
-                  className={`p-2.5 rounded-xl border flex gap-2.5 hover:scale-[1.02] transition-transform ${
+                  className={`p-3 rounded-xl border flex gap-3 hover:scale-[1.02] transition-transform ${
                     isOcean ? 'bg-slate-900/60 border-cyan-500/10 hover:border-cyan-500/30' : 'bg-gradient-to-r from-red-50/50 to-white border-red-100 hover:border-red-300'
                   }`}
                 >
-                  <div className={`w-10 h-10 flex-shrink-0 rounded-xl flex flex-col items-center justify-center font-mono font-black text-xs border ${
+                  <div className={`w-11 h-11 flex-shrink-0 rounded-xl flex flex-col items-center justify-center font-mono font-black text-xs border ${
                     isOcean ? 'bg-cyan-950/80 border-cyan-500/40 text-cyan-300' : 'bg-gradient-to-br from-red-500 to-red-600 border-red-400 text-white'
                   }`}>
                     {notice.date}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className={`text-xs font-black truncate ${isOcean ? 'text-cyan-100' : 'text-red-950'}`}>{notice.title}</p>
-                    <p className="text-[11px] opacity-85 leading-normal mt-0.5 line-clamp-2 text-justify pr-1">{notice.desc}</p>
+                    <p className="text-[11px] opacity-85 leading-normal mt-1 line-clamp-3 text-justify pr-1">{notice.desc}</p>
                   </div>
                 </div>
               ))}
