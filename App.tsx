@@ -330,25 +330,23 @@ const App: React.FC = () => {
     <div className="w-full relative">
       
       {/* ====================================================================
-          ĐÃ FIX LỖI: ĐẶT ABSOLUTE TOÀN DIỆN, NÉP KHÍT RẠT VÀO BIÊN TRÊN VÀ BIÊN PHẢI MÀN HÌNH
-          (Không bao giờ chạm vào logo lớn, dải dập chữ dính khít không khoảng trống đen)
+          ĐÃ SỬA: SỬ DỤNG TOP-[64PX] ĐỂ BẢNG THÔNG BÁO GHIM KHÍT KHÔNG TÌ VẾT VÀO MÉP DƯỚI HEADER ĐEN
           ==================================================================== */}
       {notices.length > 0 && (
-        <div className="absolute top-[80px] right-0 z-50 hidden md:block animate-slide-up">
-          <div className={`pb-5 px-5 pt-0 rounded-l-3xl rounded-br-none rounded-tr-none border-y-2 border-l-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
+        <div className="absolute top-[64px] right-0 z-50 hidden md:block animate-slide-up">
+          <div className={`pb-5 px-5 pt-0 rounded-bl-3xl border-b-2 border-l-2 transition-all duration-500 shadow-2xl w-[320px] lg:w-[355px] space-y-4 ${
             isOcean ? 'bg-slate-950/85 border-cyan-500/40 shadow-cyan-950/60 text-cyan-100 backdrop-blur-md' : 'bg-white border-yellow-300 shadow-yellow-100/50 text-amber-900'
           }`}>
             
-            {/* Thanh tiêu đề dính khít sát viền trên bảng, bo góc theo viền chuẩn */}
-            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-[22px] ${isOcean ? 'border-cyan-500/30 bg-slate-900/50' : 'border-yellow-200 bg-yellow-50/60'}`}>
+            {/* Tiêu đề dải thanh ngang găm khít không hở kẽ xanh biển */}
+            <div className={`flex items-center gap-2 border-b pb-3 pt-3.5 -mx-5 px-5 rounded-tl-none ${isOcean ? 'border-cyan-500/30 bg-slate-900/50' : 'border-yellow-200 bg-yellow-50/60'}`}>
               <span className={`text-base ${isOcean ? 'text-cyan-404 animate-pulse' : 'text-red-500'}`}>{isOcean ? '📟' : '📢'}</span>
               <h2 className={`text-xs font-black font-tet-title tracking-wider uppercase ${isOcean ? 'text-cyan-300' : 'text-yellow-805'}`}>
                 Thông báo quan trọng
               </h2>
             </div>
 
-            {/* Nội dung danh sách chữ hiển thị rộng rãi, thoải mái */}
-            <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
               {notices.map(notice => (
                 <div 
                   key={notice.id} 
@@ -502,7 +500,7 @@ const App: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Ô QUAY SỐ SẢN PHẨM NGẪU NHIÊN CÓ SẴN (products.xlsx) */}
+                  {/* Ô QUAY SỐ SẢN PHẨM NGẪU NHIÊN CÓ SẴN */}
                   {productList.length > 0 && !processedFileUrl && (
                     <div className={`p-5 mb-8 rounded-2xl border-2 transition-all duration-500 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg ${isOcean ? 'bg-slate-900/60 border-cyan-500/20 text-cyan-100' : 'bg-amber-50/60 border-yellow-300 text-amber-900'}`}>
                       <div className="flex-1 text-center sm:text-left min-w-0 w-full">
