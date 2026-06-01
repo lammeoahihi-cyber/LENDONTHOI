@@ -1,3 +1,1 @@
-26/5| Tăng Giá 1 Lô Sản Phẩm | 84 Mã Sản Phẩm Tăng Giá
-28/5| Tăng Giá 1 Lô Sản Phẩm | 38 Mã Sản Phẩm Tăng Giá
-30/5| Tăng Giá 1 Lô Sản Phẩm | 30 Mã Sản Phẩm Tăng Giá
+1/6| Check tồn kho | Kiểm tra tồn kho các sản phẩm đơn bị huỷ tự nhảy tồn kho
