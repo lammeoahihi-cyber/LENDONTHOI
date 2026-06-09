@@ -1,19 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-// Sử dụng bộ giải pháp fetch kết nối trực tiếp không cần cài thêm npm thư viện ngoài để tránh lỗi build
-import { createClient } from '@supabase/supabase-js';
 
-// ==========================================
-// ⚠️ BẠN HÃY THAY THẾ ĐOẠN MÃ DƯỚI ĐÂY BẰNG THÔNG TIN API TRÊN SUPABASE CỦA BẠN
-// ==========================================
-const SUPABASE_URL = "https://pfwcfhsobsjtfpcjcfxq.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmd2NmaHNvYnNqdGZwY2pjZnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTI2MjcsImV4cCI6MjA5NjU2ODYyN30.aYskBWpE7ZxwoujAjEMfbUN1X1EQP1DK9QuhjW1zIyQ";
-
-// Khởi tạo bộ kết nối ngầm trực tiếp
-const supabase = (SUPABASE_URL.includes("ĐIỀN_") || !SUPABASE_URL) 
-  ? null 
-  : createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+// Cấu hình kiểu dữ liệu
 type Platform = 'shopee' | 'tiktok';
 interface ProcessingState {
   status: 'idle' | 'processing' | 'success' | 'error';
@@ -42,39 +30,85 @@ interface FeedbackItem {
 const MAX_FILES = 5;
 const STORAGE_KEY = 'len_don_cung_lam_history_v2';
 
+// ==========================================
+// ĐIỀN THÔNG TIN API TRÊN SUPABASE CỦA BẠN VÀO ĐÂY
+// ==========================================
+const SUPABASE_URL = "https://pfwcfbsobsitfocjcfxg.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmd2NmaHNvYnNqdGZwY2pjZnhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTI2MjcsImV4cCI6MjA5NjU2ODYyN30.aYskBWpE7ZxwoujAjEMfbUN1X1EQP1DK9QuhjW1zIyQ";
+
+// Hàm fetch tự chế để đọc dữ liệu từ Supabase không cần thư viện ngoài
+const sFetchGet = async () => {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/feedbacks?select=*&order=timestamp.desc`, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
+
+// Hàm fetch tự chế để gửi dữ liệu lên Supabase
+const sFetchPost = async (payload: any) => {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/feedbacks`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+    return res.ok;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
 const DEFAULT_NOTICES: NoticeItem[] = [
   { id: 1, date: "25/05", title: "Gom đơn Shopee Sale", desc: "Chốt danh sách và gộp file đối soát đợt 1." },
   { id: 2, date: "28/05", title: "Thanh toán công nợ", desc: "Kiểm tra ví và thanh toán cho bên nhà cung cấp." },
   { id: 3, date: "01/06", title: "Nhập kho hàng hè mới", desc: "Kiểm đếm số lượng áo thun và váy hoa nhí vừa về." },
 ];
 
-// 1. Hiệu ứng Giao diện Tết: Mưa hoa xuân phát quang
-const BioluminescentFlowersTet = () => {
-  const flowers = Array.from({ length: 30 }).map((_, i) => {
-    const isMai = Math.random() > 0.5;
-    return {
-      id: i, left: `${Math.random() * 100}%`,
-      animationDuration: `${7 + Math.random() * 6}s`, animationDelay: `${Math.random() * 5}s`,
-      color: isMai ? '#FDE047' : '#FBCFE8', centerColor: isMai ? '#EA580C' : '#BE185D',
-      size: Math.random() * 15 + 15, pulseDuration: `${2 + Math.random() * 2}s`
-    };
-  });
+// Các component đồ họa tích hợp sẵn
+const BubbleSVG = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="4" fill="rgba(255,255,255,0.1)" />
+    <circle cx="35" cy="35" r="10" fill="rgba(255,255,255,0.4)" />
+  </svg>
+);
+
+const RisingBubbles = () => {
+  const items = Array.from({ length: 15 }).map((_, i) => ({
+    id: i, left: `${Math.random() * 100}%`, size: Math.random() * 15 + 5, delay: `${Math.random() * 4}s`, duration: `${6 + Math.random() * 4}s`
+  }));
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {flowers.map(f => (
-        <div key={f.id} className="absolute -top-10 opacity-90" style={{ left: f.left, width: f.size, height: f.size, animation: `fall ${f.animationDuration} linear infinite, pulseBreath ${f.pulseDuration} ease-in-out infinite alternate`, animationDelay: `${f.animationDelay}, 0s` }}>
-          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 8px rgba(234,179,8,0.4))' }}>
-            <path d="M50,15 C60,0 80,15 70,35 C85,25 100,45 80,60 C90,80 65,95 50,75 C35,95 10,80 20,60 C0,45 15,25 30,35 C20,15 40,0 50,15 Z" fill={f.color}/><circle cx="50" cy="48" r="12" fill={f.centerColor}/>
-          </svg>
-        </div>
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {items.map(b => (
+        <div key={b.id} className="absolute bottom-[-20px] rounded-full bg-cyan-400/10 border border-cyan-300/30 animate-[rise_10s_infinite_linear]" style={{ left: b.left, width: b.size, height: b.size, animationDelay: b.delay, animationDuration: b.duration }} />
       ))}
     </div>
   );
 };
 
-// 2. Hiệu ứng Giao diện Biển: Bào tử phát quang sinh học
+const Couplet = ({ text, position, theme }: { text: string; position: 'left' | 'right'; theme: string }) => (
+  <div className={`fixed top-1/4 ${position === 'left' ? 'left-4' : 'right-4'} z-20 hidden xl:block w-12 p-3 text-center font-black rounded-full border-2 border-dashed ${theme === 'ocean' ? 'bg-slate-950/40 border-cyan-500/30 text-cyan-200' : 'bg-white border-yellow-400 text-amber-900'}`}>
+    {text.split('').map((char, i) => <div key={i} className="my-1 text-base">{char}</div>)}
+  </div>
+);
+
 const BioluminescenceSpores = () => {
-  const spores = Array.from({ length: 30 }).map((_, i) => ({
+  const spores = Array.from({ length: 25 }).map((_, i) => ({
     id: i, left: `${Math.random() * 100}%`, bottom: `${Math.random() * 100}%`,
     size: Math.random() * 5 + 3, duration: `${3 + Math.random() * 4}s`, delay: `${Math.random() * 3}s`,
     color: Math.random() > 0.5 ? '#22d3ee' : '#c026d3',
@@ -88,12 +122,25 @@ const BioluminescenceSpores = () => {
   );
 };
 
-// 3. Hiệu ứng Giao diện Biển: Màn nước sóng sánh nhòe 3D
 const WaterDistortionOverlay = () => (
   <div className="fixed inset-0 pointer-events-none z-[1] mix-blend-overlay" style={{ animation: 'water-wave 8s ease-in-out infinite alternate', background: 'linear-gradient(180deg, rgba(34,211,238,0.03) 0%, rgba(30,58,138,0.03) 100%)' }} />
 );
 
-// 4. Hiệu ứng Chung: Bọt khí phụt từ con trỏ chuột
+const BioluminescentFlowersTet = () => {
+  const flowers = Array.from({ length: 20 }).map((_, i) => ({
+    id: i, left: `${Math.random() * 100}%`, animationDuration: `${8 + Math.random() * 5}s`, animationDelay: `${Math.random() * 4}s`, color: Math.random() > 0.5 ? '#FDE047' : '#FBCFE8', size: Math.random() * 15 + 15
+  }));
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {flowers.map(f => (
+        <div key={f.id} className="absolute -top-10 opacity-80" style={{ left: f.left, width: f.size, height: f.size, animation: `fall ${f.animationDuration} linear infinite`, animationDelay: f.animationDelay }}>
+          <svg className="w-full h-full animate-spin-slow" viewBox="0 0 100 100" fill={f.color}><circle cx="50" cy="50" r="30" /></svg>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const ClickBubbleBurst = () => {
   const [bursts, setBursts] = useState<Array<{ id: number, x: number, y: number }>>([]);
   useEffect(() => {
@@ -142,30 +189,19 @@ const SuccessBubbleBlast: React.FC<{ trigger: boolean }> = ({ trigger }) => {
 const InteractiveSwimmingFish = () => {
   const [fishes] = useState(() => 
     Array.from({ length: 5 }).map((_, i) => ({
-      id: i, top: `${25 + Math.random() * 50}%`,
-      size: Math.random() * 20 + 40,
-      duration: `${15 + Math.random() * 8}s`, delay: `${Math.random() * 4}s`,
-      direction: Math.random() > 0.5 ? 'swimLTR' : 'swimRTL',
+      id: i, top: `${25 + Math.random() * 50}%`, size: Math.random() * 20 + 40, duration: `${15 + Math.random() * 8}s`, delay: `${Math.random() * 4}s`, direction: Math.random() > 0.5 ? 'swimLTR' : 'swimRTL'
     }))
   );
   return (
     <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
       {fishes.map(f => (
         <div key={f.id} className="absolute opacity-40" style={{ top: f.top, width: f.size, height: f.size / 2, animationName: f.direction, animationDuration: f.duration, animationDelay: f.delay, animationTimingFunction: 'linear', animationIterationCount: 'infinite' }}>
-          <svg viewBox="0 0 100 50" fill="currentColor" className="w-full h-full text-cyan-500">
-            <path d="M10,25 C30,10 70,10 90,25 C70,40 30,40 10,25 M90,25 L100,15 L95,25 L100,35 Z" />
-          </svg>
+          <svg viewBox="0 0 100 50" fill="currentColor" className="w-full h-full text-cyan-500"><path d="M10,25 C30,10 70,10 90,25 C70,40 30,40 10,25 M90,25 L100,15 L95,25 L100,35 Z" /></svg>
         </div>
       ))}
     </div>
   );
 };
-
-const Couplet = ({ text, position, theme }: { text: string; position: 'left' | 'right'; theme: string }) => (
-  <div className={`fixed top-1/4 ${position === 'left' ? 'left-4' : 'right-4'} z-20 hidden xl:block w-12 p-3 text-center font-black rounded-full border-2 border-dashed ${theme === 'ocean' ? 'bg-slate-950/40 border-cyan-500/30 text-cyan-200' : 'bg-white border-yellow-400 text-amber-900'}`}>
-    {text.split('').map((char, i) => <div key={i} className="my-1 text-base">{char}</div>)}
-  </div>
-);
 
 const dummyProcessExcelFiles = async (files: File[], platform: Platform): Promise<Blob> => {
   return new Promise((resolve) => {
@@ -204,23 +240,14 @@ const App: React.FC = () => {
   const [productList, setProductList] = useState<string[]>([]);
   const [randomProduct, setRandomProduct] = useState<string>('');
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
-
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [fbName, setFbName] = useState('');
   const [fbContent, setFbContent] = useState('');
 
-  // 1. ĐỌC DỮ LIỆU GÓP Ý CÔNG KHAI TỪ SUPABASE ONLINE KHI VỪA MỞ WEB
-  const fetchFeedbacks = async () => {
-    if (!supabase) return;
-    try {
-      const { data, error } = await supabase
-        .from('feedbacks')
-        .select('*')
-        .order('timestamp', { ascending: false });
-      if (error) throw error;
-      if (data) setFeedbacks(data as FeedbackItem[]);
-    } catch (err) {
-      console.error("Lỗi lấy dữ liệu góp ý từ Supabase:", err);
+  const refreshFeedbacks = async () => {
+    const data = await sFetchGet();
+    if (data && data.length > 0) {
+      setFeedbacks(data);
     }
   };
 
@@ -229,22 +256,13 @@ const App: React.FC = () => {
     if (savedHistory) {
       try { setHistory(JSON.parse(savedHistory)); } catch (e) { console.error(e); }
     }
+    refreshFeedbacks();
 
-    fetchFeedbacks();
-
-    // Thiết lập cơ chế Realtime lắng nghe: Có ai gửi cái là màn hình tự nhảy dòng mới
-    if (supabase) {
-      const channel = supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'feedbacks' }, () => {
-          fetchFeedbacks();
-        })
-        .subscribe();
-      return () => { supabase.removeChannel(channel); };
-    }
+    // Thiết lập tự động làm mới hòm thư góp ý sau mỗi 10 giây để thay thế Realtime không cần thư viện ngoài
+    const interval = setInterval(refreshFeedbacks, 10000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Tự động đọc file note thông báo và danh sách sản phẩm xlsx
   useEffect(() => {
     const loadDefaultFiles = async () => {
       try {
@@ -287,7 +305,11 @@ const App: React.FC = () => {
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }, [history]);
 
-  // LOGIC GỬI GÓP Ý LÊN CƠ SỞ DỮ LIỆU SUPABASE TRỰC TUYẾN
+  const addToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
+    const newItem = { ...item, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() };
+    setHistory(prev => [newItem, ...prev].slice(0, 50));
+  };
+
   const handleSendFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fbName.trim() || !fbContent.trim()) return;
@@ -298,17 +320,12 @@ const App: React.FC = () => {
       timestamp: Date.now()
     };
 
-    if (supabase) {
-      try {
-        const { error } = await supabase.from('feedbacks').insert([payload]);
-        if (error) throw error;
-        setFbContent('');
-        fetchFeedbacks(); // Tải lại danh sách online mới nhất
-      } catch (err: any) {
-        alert("Lỗi không gửi được lên mạng: " + err.message);
-      }
+    const success = await sFetchPost(payload);
+    if (success) {
+      setFbContent('');
+      refreshFeedbacks();
     } else {
-      // Dự phòng Local nếu chưa cấu hình key
+      // Dự phòng bộ nhớ máy nếu API lỗi
       const localItem: FeedbackItem = { id: Math.random().toString(), ...payload };
       setFeedbacks(prev => [localItem, ...prev]);
       setFbContent('');
@@ -316,7 +333,7 @@ const App: React.FC = () => {
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles: File[] = Array.from(event.target.files || []);
+    const selectedFiles: File[] = Array.from(event.target.value ? event.target.files || [] : []);
     if (files.length + selectedFiles.length > MAX_FILES) {
       setState({ status: 'error', message: `Tối đa ${MAX_FILES} file mỗi lần.` });
       return;
@@ -348,13 +365,12 @@ const App: React.FC = () => {
   const handlePickRandomProduct = () => {
     if (productList.length === 0) return;
     setRandomProduct(productList[Math.floor(Math.random() * productList.length)]);
-    if (typeof (window as any).confetti === 'function') {
-      (window as any).confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 }, colors: isOcean ? ['#22d3ee', '#34d399'] : ['#fde047', '#ff0000'] });
-    }
   };
 
   const reset = () => { setFiles([]); setState({ status: 'idle', message: '' }); setProcessedFileUrl(null); setShowCelebrationBubbles(false); };
   const clearHistory = () => { if (confirm('Xóa toàn bộ lịch sử?')) setHistory([]); };
+
+  const isOcean = theme === 'ocean';
 
   return (
     <div className="w-full relative min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-white overflow-x-hidden">
@@ -423,7 +439,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* HÒM THẢ FILE & HÔM NAY BÁN GÌ */}
+            {/* HÒM THẢ FILE */}
             <div className="lg:col-span-8">
               <div className="p-6 rounded-[2rem] border-2 border-cyan-500/20 bg-slate-950/40 space-y-6">
                 {!processedFileUrl && (
@@ -469,7 +485,7 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* KHU VỰC GÓP Ý DƯỚI CÙNG CHẠY REALTIME TỪ SUPABASE */}
+          {/* KHU VỰC GÓP Ý DƯỚI CÙNG */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full border-t border-cyan-500/10 pt-8 mt-4">
             <div className="lg:col-span-5">
               <form onSubmit={handleSendFeedback} className="p-6 rounded-3xl border border-cyan-500/20 bg-slate-950/40 space-y-4">
