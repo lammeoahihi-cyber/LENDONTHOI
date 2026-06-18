@@ -12,7 +12,7 @@ const CẬP_NHẬT_MOT_KHO_MAPPINGS: ColumnMapping[] = [
   { source: 'H',  target: 'D' },
   { source: 'A',  target: 'E' },
   { source: 'T',  target: 'F' },
-  { source: 'AB', target: 'G' },
+  { source: 'AC', target: 'G' },
   { source: 'AA', target: 'H' },
   { source: 'BJ', target: 'I' },
   { source: 'BK', target: 'J' },
