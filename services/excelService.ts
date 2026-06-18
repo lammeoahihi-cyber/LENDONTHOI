@@ -1,7 +1,42 @@
-
 import * as XLSX from 'xlsx';
-import { MOT_KHO_MAPPINGS, DA_KHO_MAPPINGS, TIKTOK_MAPPINGS } from '../constants';
+import { TIKTOK_MAPPINGS } from '../constants';
 import { ColumnMapping, Platform } from '../types';
+
+// ==========================================
+// ĐÃ CẬP NHẬT: QUY TẮC MAPPING MỚI CHO ĐƠN 1 KHO (Theo ảnh image_eeeb9d.png)
+// ==========================================
+const CẬP_NHẬT_MOT_KHO_MAPPINGS: ColumnMapping[] = [
+  { source: 'BB', target: 'A' },
+  { source: 'BD', target: 'B' },
+  { source: 'BH', target: 'C' },
+  { source: 'H',  target: 'D' },
+  { source: 'A',  target: 'E' },
+  { source: 'T',  target: 'F' },
+  { source: 'AB', target: 'G' },
+  { source: 'AA', target: 'H' },
+  { source: 'BJ', target: 'I' },
+  { source: 'BK', target: 'J' },
+  { source: 'G',  target: 'K' },
+  { source: 'I',  target: 'L' }
+];
+
+// ==========================================
+// ĐÃ CẬP NHẬT: QUY TẮC MAPPING MỚI CHO ĐƠN ĐA KHO (Theo ảnh image_eee818.png)
+// ==========================================
+const CẬP_NHẬT_DA_KHO_MAPPINGS: ColumnMapping[] = [
+  { source: 'BC', target: 'A' },
+  { source: 'BE', target: 'B' },
+  { source: 'BI', target: 'C' },
+  { source: 'H',  target: 'D' },
+  { source: 'A',  target: 'E' },
+  { source: 'U',  target: 'F' },
+  { source: 'AD', target: 'G' },
+  { source: 'AB', target: 'H' },
+  { source: 'BK', target: 'I' },
+  { source: 'BL', target: 'J' },
+  { source: 'H',  target: 'K' },
+  { source: 'I',  target: 'L' }
+];
 
 /**
  * Converts Excel column string (e.g., 'A', 'BB') to 0-based index.
@@ -19,7 +54,7 @@ function columnToIndex(column: string): number {
  * Detects Shopee subtype: "Đơn Đa Kho" or "Đơn 1 Kho"
  */
 function detectShopeeMappingType(rows: any[][]): ColumnMapping[] {
-  if (rows.length === 0) return MOT_KHO_MAPPINGS;
+  if (rows.length === 0) return CẬP_NHẬT_MOT_KHO_MAPPINGS;
   const searchLimit = Math.min(rows.length, 5);
   for (let i = 0; i < searchLimit; i++) {
     const row = rows[i];
@@ -28,10 +63,10 @@ function detectShopeeMappingType(rows: any[][]): ColumnMapping[] {
         cell !== null && cell !== undefined && 
         String(cell).toLowerCase().includes('tên kho hàng')
       );
-      if (hasKeyword) return DA_KHO_MAPPINGS;
+      if (hasKeyword) return CẬP_NHẬT_DA_KHO_MAPPINGS;
     }
   }
-  return MOT_KHO_MAPPINGS;
+  return CẬP_NHẬT_MOT_KHO_MAPPINGS;
 }
 
 export async function processExcelFiles(files: File[], platform: Platform): Promise<Blob> {
