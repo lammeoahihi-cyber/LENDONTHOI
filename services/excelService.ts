@@ -34,7 +34,7 @@ const CẬP_NHẬT_DA_KHO_MAPPINGS: ColumnMapping[] = [
   { source: 'AB', target: 'H' },
   { source: 'BK', target: 'I' },
   { source: 'BL', target: 'J' },
-  { source: 'H',  target: 'K' },
+  { source: 'G',  target: 'K' },
   { source: 'I',  target: 'L' }
 ];
 
