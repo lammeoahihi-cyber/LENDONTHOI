@@ -28,18 +28,53 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
         return;
       }
 
-      const prompt = `Bạn là một chuyên gia viết nội dung bán hàng xuất sắc. Hãy viết một bài mô tả sản phẩm chuẩn SEO để đăng lên Shopee cho sản phẩm có tên là: "${productName}".
-      Yêu cầu bắt buộc:
-      1. Tiêu đề hấp dẫn, viết hoa những từ quan trọng.
-      2. Nêu bật công dụng, thành phần hoặc thông số kỹ thuật và đặc điểm nổi bật.
-      3. Cấu trúc rõ ràng, sử dụng các icon (emoji) sinh động ở đầu các dòng để thu hút.
-      4. Có phần hướng dẫn sử dụng và chính sách bảo hành/đổi trả cơ bản.
-      5. Kết thúc bài bằng 10-15 hashtag liên quan mật thiết đến sản phẩm (VD: #shopee #tensanpham...).
-      Hãy viết thông tin thật chi tiết, lôi cuốn và tự nhiên nhất.`;
+      // Prompt chuyên nghiệp theo ý bạn và ĐÃ BỔ SUNG quy tắc cấm tuyệt đối Markdown
+      const prompt = `Bạn là chuyên gia Content Marketing, Copywriter SEO và chuyên gia tối ưu gian hàng Shopee.
 
-      // Gọi trực tiếp qua API chuẩn của Google Gemini (Không qua thư viện trung gian, chống lỗi build 100%)
+Nhiệm vụ của bạn là tạo bài mô tả sản phẩm chuyên nghiệp, hấp dẫn và chuẩn SEO Shopee dựa trên thông tin sản phẩm được cung cấp.
+
+Tên sản phẩm cần viết: "${productName}"
+
+========================
+YÊU CẦU CHUNG
+========================
+- Chỉ sử dụng thông tin có thật, không tự bịa thông số, nếu thiếu thì bỏ qua.
+- Viết bằng tiếng Việt tự nhiên, văn phong bán hàng chuyên nghiệp, dễ đọc trên điện thoại.
+- Chia thành các mục rõ ràng, sử dụng icon/emoji phù hợp.
+- Tối ưu SEO Shopee, không nhồi nhét từ khóa, không viết hoa toàn bộ câu.
+
+========================
+CẤU TRÚC BÀI VIẾT
+========================
+1. Tiêu đề hấp dẫn (Chuẩn SEO, có icon, thu hút)
+2. Giới thiệu sản phẩm (Ngắn gọn, nêu lợi ích, gây hứng thú)
+3. Điểm nổi bật (Dạng danh sách với icon như ✅, ⭐...)
+4. Mô tả chi tiết các tính năng
+5. Thông số kỹ thuật (Dạng danh sách)
+6. Bộ sản phẩm gồm
+7. Hướng dẫn sử dụng & Lưu ý (nếu có)
+8. Cam kết của shop (Hỗ trợ, đóng gói, kiểm tra hàng)
+9. Kêu gọi mua hàng (CTA mạnh mẽ)
+
+========================
+HASHTAG
+========================
+Tạo từ 20-30 hashtag liên quan đến sản phẩm, thương hiệu, ngành hàng, Shopee ở cuối bài.
+
+========================
+QUY TẮC ĐỊNH DẠNG TỐI QUAN TRỌNG (BẮT BUỘC TUÂN THỦ)
+========================
+- TUYỆT ĐỐI KHÔNG SỬ DỤNG bất kỳ ký tự Markdown nào (Không dùng dấu sao *, không dùng dấu thăng #, không dùng gạch ngang - để gạch đầu dòng hay kẻ bảng).
+- Toàn bộ văn bản phải là chữ thuần túy (plain text) kết hợp icon và khoảng trắng để phân cách các phần. Điều này để khi copy thẳng lên Shopee không bị dính lỗi ký tự lạ.
+
+========================
+KẾT QUẢ
+========================
+Chỉ trả về bài mô tả hoàn chỉnh. Không giải thích, không nói thêm, không nhắc lại yêu cầu.`;
+
+      // Gọi trực tiếp Google API với model chuẩn đời mới
       const response = await fetch(
-       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
@@ -102,7 +137,7 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
           type="text"
           value={productName}
           onChange={(e) => setProductName(e.target.value)}
-          placeholder="Nhập tên sản phẩm vào đây (VD: Áo thun nam cotton form rộng...)"
+          placeholder="Nhập tên sản phẩm vào đây (VD: Máy sấy tóc AirWand...)"
           className={`w-full px-6 py-4 rounded-2xl text-lg font-medium border focus:outline-none focus:ring-2 ${
             isOcean 
               ? 'bg-slate-800 border-cyan-500/50 text-white placeholder-cyan-500/50 focus:ring-cyan-500' 
