@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Khởi tạo Gemini AI (Nhớ thêm VITE_GEMINI_API_KEY vào biến môi trường trên Vercel)
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-
 interface AiWriterProps {
   onBack: () => void;
   theme: 'ocean' | 'tet';
@@ -24,10 +21,20 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
     setCopied(false);
 
     try {
-      // Dùng model gemini-1.5-flash tốc độ cao và miễn phí
+      // 1. Lấy API Key trực tiếp ngay khi bấm nút để đảm bảo Vite đã nạp xong biến môi trường
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      
+      // Kiểm tra nếu Vercel chưa nhận được Key
+      if (!apiKey) {
+        setResult('🚨 LỖI TRẦM TRỌNG: Không tìm thấy API Key.\n\nHệ thống Vercel chưa nhận được biến môi trường VITE_GEMINI_API_KEY. Vui lòng vào Vercel > Deployments > Bấm Redeploy nhưng nhớ BỎ TÍCH ô "Use existing build cache" để Vercel nạp lại Key mới nhé!');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Khởi tạo AI bên trong hàm
+      const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
-      // Lệnh (Prompt) được thiết kế chuyên sâu cho Shopee
       const prompt = `Bạn là một chuyên gia viết nội dung bán hàng xuất sắc. Hãy viết một bài mô tả sản phẩm chuẩn SEO để đăng lên Shopee cho sản phẩm có tên là: "${productName}".
       Yêu cầu bắt buộc:
       1. Tiêu đề hấp dẫn, viết hoa những từ quan trọng.
@@ -38,11 +45,16 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
       Dựa trên kho kiến thức rộng lớn của bạn về các mặt hàng, hãy viết thông tin thật chính xác, lôi cuốn và tự nhiên nhất.`;
 
       const aiResult = await model.generateContent(prompt);
-      const response = await aiResult.response;
-      setResult(response.text());
-    } catch (error) {
-      console.error(error);
-      setResult('Đã xảy ra lỗi khi kết nối với AI. Vui lòng kiểm tra lại kết nối hoặc API Key.');
+      
+      // 3. Tách response đồng bộ theo tài liệu chuẩn của Google
+      const response = aiResult.response;
+      const text = response.text();
+      
+      setResult(text);
+    } catch (error: any) {
+      console.error("Chi tiết lỗi:", error);
+      // In thẳng mã lỗi thật từ Google ra màn hình để dễ dàng khắc phục
+      setResult(`❌ Đã xảy ra lỗi từ hệ thống AI của Google:\n\n${error.message || error}\n\n(Nếu lỗi ghi là "API key not valid", hãy kiểm tra lại xem Key bạn dán trên Vercel có bị dư khoảng trắng không nhé)`);
     } finally {
       setLoading(false);
     }
