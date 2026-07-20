@@ -47,25 +47,23 @@ YÊU CẦU CHUNG
 CẤU TRÚC BÀI VIẾT
 ========================
 1. Tiêu đề hấp dẫn (Chuẩn SEO, có icon, thu hút)
-2. Giới thiệu sản phẩm (Ngắn gọn, nêu lợi ích, gây hứng thú)
 3. Điểm nổi bật (Dạng danh sách với icon như ✅, ⭐...)
-4. Mô tả chi tiết các tính năng
+4. Mô tả chi tiết các tính năng ( không cần quá dài , có thể có hoặc không ) 
 5. Thông số kỹ thuật (Dạng danh sách)
-6. Bộ sản phẩm gồm
-7. Hướng dẫn sử dụng & Lưu ý (nếu có)
-8. Cam kết của shop (Hỗ trợ, đóng gói, kiểm tra hàng)
-9. Kêu gọi mua hàng (CTA mạnh mẽ)
+6. Bộ sản phẩm gồm ( có thể có hoặc không )
+7. Hướng dẫn sử dụng & Lưu ý (có thể có hoặc không)
 
 ========================
 HASHTAG
 ========================
-Tạo từ 20-30 hashtag liên quan đến sản phẩm, thương hiệu, ngành hàng, Shopee ở cuối bài.
+Tạo từ 10-20 hashtag liên quan đến sản phẩm, thương hiệu, ngành hàng, Shopee ở cuối bài.
 
 ========================
 QUY TẮC ĐỊNH DẠNG TỐI QUAN TRỌNG (BẮT BUỘC TUÂN THỦ)
 ========================
 - TUYỆT ĐỐI KHÔNG SỬ DỤNG bất kỳ ký tự Markdown nào (Không dùng dấu sao *, không dùng dấu thăng #, không dùng gạch ngang - để gạch đầu dòng hay kẻ bảng).
 - Toàn bộ văn bản phải là chữ thuần túy (plain text) kết hợp icon và khoảng trắng để phân cách các phần. Điều này để khi copy thẳng lên Shopee không bị dính lỗi ký tự lạ.
+- Tránh các từ có thể bị vi phạm trên nền tảng shopee .
 
 ========================
 KẾT QUẢ
