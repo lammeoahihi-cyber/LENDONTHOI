@@ -598,32 +598,39 @@ const App: React.FC = () => {
         @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
       `}</style>
-    </div> 
-    {/* Nút tải File cài trên PC */}
-<a
-  href="/app-cai-dat.zip"
-  download
-  style={{
-    position: 'fixed',
-    bottom: '20px', // Khoảng cách so với đáy màn hình
-    left: '20px',   // Khoảng cách so với mép trái (bạn có thể đổi thành 'right: 20px' nếu muốn để góc phải)
-    backgroundColor: '#007bff', // Màu nền xanh
-    color: '#ffffff', // Chữ màu trắng
-    padding: '10px 15px',
-    borderRadius: '8px',
-    textDecoration: 'none',
-    fontWeight: 'bold',
-    fontSize: '14px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-    zIndex: 9999, // Đảm bảo nút luôn nổi lên trên cùng, không bị che khuất
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    cursor: 'pointer'
-  }}
->
-  💻 File cài trên pc
-</a>
+    <style>{`
+        /* ... (giữ nguyên toàn bộ CSS cũ của bạn ở đây) ... */
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+      `}</style>
+
+      {/* ĐƯA NÚT TẢI VÀO ĐÂY: Ngay trên thẻ đóng </div> cuối cùng */}
+      <a
+        href="/app-cai-dat.zip"
+        download
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          backgroundColor: '#007bff',
+          color: '#ffffff',
+          padding: '10px 15px',
+          borderRadius: '8px',
+          textDecoration: 'none',
+          fontWeight: 'bold',
+          fontSize: '14px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        💻 File cài trên pc
+      </a>
+
+    </div> {/* <--- LƯU Ý: Thẻ đóng div này phải nằm ngoài cùng */}
   );
 };
 
