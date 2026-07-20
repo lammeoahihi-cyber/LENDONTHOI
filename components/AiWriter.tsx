@@ -33,7 +33,7 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
 
       // 2. Khởi tạo AI bên trong hàm
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
       
       const prompt = `Bạn là một chuyên gia viết nội dung bán hàng xuất sắc. Hãy viết một bài mô tả sản phẩm chuẩn SEO để đăng lên Shopee cho sản phẩm có tên là: "${productName}".
       Yêu cầu bắt buộc:
