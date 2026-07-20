@@ -74,7 +74,7 @@ Chỉ trả về bài mô tả hoàn chỉnh. Không giải thích, không nói 
 
       // Gọi trực tiếp Google API với model chuẩn đời mới
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
