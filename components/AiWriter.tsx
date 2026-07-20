@@ -39,8 +39,7 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
 
       // Gọi trực tiếp qua API chuẩn của Google Gemini (Không qua thư viện trung gian, chống lỗi build 100%)
       const response = await fetch(
-       `const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
