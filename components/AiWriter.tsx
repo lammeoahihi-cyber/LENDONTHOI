@@ -135,7 +135,7 @@ Chỉ trả về bài mô tả hoàn chỉnh. Không giải thích, không nói 
           type="text"
           value={productName}
           onChange={(e) => setProductName(e.target.value)}
-          placeholder="Nhập tên sản phẩm vào đây (VD: Máy sấy tóc AirWand...)"
+          placeholder="Nhập tên sản phẩm vào đây (VD: Định Vị E100 HOCO...)"
           className={`w-full px-6 py-4 rounded-2xl text-lg font-medium border focus:outline-none focus:ring-2 ${
             isOcean 
               ? 'bg-slate-800 border-cyan-500/50 text-white placeholder-cyan-500/50 focus:ring-cyan-500' 
