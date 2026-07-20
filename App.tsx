@@ -598,13 +598,13 @@ const App: React.FC = () => {
         @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
       `}</style>
-    <style>{`
+       <style>{`
         /* ... (giữ nguyên toàn bộ CSS cũ của bạn ở đây) ... */
         @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
       `}</style>
 
-      {/* ĐƯA NÚT TẢI VÀO ĐÂY: Ngay trên thẻ đóng </div> cuối cùng */}
+      {/* Nút tải File cài trên PC */}
       <a
         href="/app-cai-dat.zip"
         download
@@ -630,7 +630,7 @@ const App: React.FC = () => {
         💻 File cài trên pc
       </a>
 
-    </div> {/* <--- LƯU Ý: Thẻ đóng div này phải nằm ngoài cùng */}
+    </div>
   );
 };
 
