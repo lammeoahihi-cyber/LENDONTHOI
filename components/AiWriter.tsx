@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
 
 interface AiWriterProps {
   onBack: () => void;
@@ -29,9 +28,6 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
         return;
       }
 
-      // Khởi tạo theo chuẩn SDK mới của Google
-      const ai = new GoogleGenAI({ apiKey });
-
       const prompt = `Bạn là một chuyên gia viết nội dung bán hàng xuất sắc. Hãy viết một bài mô tả sản phẩm chuẩn SEO để đăng lên Shopee cho sản phẩm có tên là: "${productName}".
       Yêu cầu bắt buộc:
       1. Tiêu đề hấp dẫn, viết hoa những từ quan trọng.
@@ -41,20 +37,34 @@ export const AiWriter: React.FC<AiWriterProps> = ({ onBack, theme }) => {
       5. Kết thúc bài bằng 10-15 hashtag liên quan mật thiết đến sản phẩm (VD: #shopee #tensanpham...).
       Hãy viết thông tin thật chi tiết, lôi cuốn và tự nhiên nhất.`;
 
-      // Sử dụng model chuẩn đời mới gemini-2.5-flash
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
+      // Gọi trực tiếp qua API chuẩn của Google Gemini (Không qua thư viện trung gian, chống lỗi build 100%)
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }]
+              }
+            ]
+          }),
+        }
+      );
 
-      if (response && response.text) {
-        setResult(response.text);
+      const data = await response.json();
+
+      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+        setResult(data.candidates[0].content.parts[0].text);
       } else {
-        setResult('Không nhận được phản hồi từ AI, vui lòng thử lại.');
+        setResult(`❌ Lỗi từ Google API: ${JSON.stringify(data)}`);
       }
     } catch (error: any) {
       console.error("Chi tiết lỗi:", error);
-      setResult(`❌ Đã xảy ra lỗi:\n\n${error.message || error}`);
+      setResult(`❌ Đã xảy ra lỗi kết nối: ${error.message || error}`);
     } finally {
       setLoading(false);
     }
