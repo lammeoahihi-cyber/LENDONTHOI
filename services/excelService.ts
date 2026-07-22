@@ -6,36 +6,36 @@ import { ColumnMapping, Platform } from '../types';
 // ĐÃ CẬP NHẬT: QUY TẮC MAPPING MỚI CHO ĐƠN 1 KHO (Theo ảnh image_eeeb9d.png)
 // ==========================================
 const CẬP_NHẬT_MOT_KHO_MAPPINGS: ColumnMapping[] = [
-  { source: 'BB', target: 'A' },
-  { source: 'BD', target: 'B' },
-  { source: 'BH', target: 'C' },
-  { source: 'H',  target: 'D' },
+  { source: 'BA', target: 'A' },
+  { source: 'BC', target: 'B' },
+  { source: 'BG', target: 'C' },
+  { source: 'G',  target: 'D' },
   { source: 'A',  target: 'E' },
-  { source: 'T',  target: 'F' },
-  { source: 'AC', target: 'G' },
-  { source: 'AA', target: 'H' },
-  { source: 'BJ', target: 'I' },
-  { source: 'BK', target: 'J' },
-  { source: 'G',  target: 'K' },
-  { source: 'I',  target: 'L' }
+  { source: 'S',  target: 'F' },
+  { source: 'AB', target: 'G' },
+  { source: 'Z', target: 'H' },
+  { source: 'BI', target: 'I' },
+  { source: 'BJ', target: 'J' },
+  { source: 'F',  target: 'K' },
+  { source: 'H',  target: 'L' }
 ];
 
 // ==========================================
 // ĐÃ CẬP NHẬT: QUY TẮC MAPPING MỚI CHO ĐƠN ĐA KHO (Theo ảnh image_eee818.png)
 // ==========================================
 const CẬP_NHẬT_DA_KHO_MAPPINGS: ColumnMapping[] = [
-  { source: 'BC', target: 'A' },
-  { source: 'BE', target: 'B' },
-  { source: 'BI', target: 'C' },
-  { source: 'H',  target: 'D' },
+  { source: 'BB', target: 'A' },
+  { source: 'BD', target: 'B' },
+  { source: 'BH', target: 'C' },
+  { source: 'G',  target: 'D' },
   { source: 'A',  target: 'E' },
-  { source: 'U',  target: 'F' },
-  { source: 'AD', target: 'G' },
-  { source: 'AB', target: 'H' },
+  { source: 'T',  target: 'F' },
+  { source: 'AC', target: 'G' },
+  { source: 'AA', target: 'H' },
   { source: 'BK', target: 'I' },
   { source: 'BL', target: 'J' },
-  { source: 'G',  target: 'K' },
-  { source: 'I',  target: 'L' }
+  { source: 'F',  target: 'K' },
+  { source: 'H',  target: 'L' }
 ];
 
 /**
